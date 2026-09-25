@@ -1,10 +1,623 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects · FlowTask</title>
+<style>
+  :root{
+    --bg:#0a0e17;
+    --panel:#111726;
+    --panel-2:#0d1220;
+    --border:#1f2637;
+    --border-soft:#232b3d;
+    --text:#e7eaf1;
+    --text-dim:#8b93a7;
+    --text-faint:#5c6478;
+    --accent:#6366f1;
+    --accent-soft:rgba(99,102,241,.15);
+    --green:#22c55e;
+    --green-soft:rgba(34,197,94,.14);
+    --amber:#f5b73f;
+    --amber-soft:rgba(245,183,63,.14);
+    --red:#f16a6a;
+    --red-soft:rgba(241,106,106,.14);
+    --cyan:#38bdf8;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:220px;
+    flex-shrink:0;
+    padding:20px 14px;
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+  .brand{display:flex;align-items:center;gap:10px;padding:4px 6px 26px;}
+  .brand .logo{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;
+  }
+  .brand span{font-weight:700;font-size:17px;letter-spacing:.2px;}
+
+  .nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .nav a{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border-radius:8px;
+    color:var(--text-dim);text-decoration:none;font-size:14px;
+  }
+  .nav a .ic{width:18px;text-align:center;}
+  .nav a:hover{color:var(--text);background:var(--panel);}
+  .nav a.active{color:var(--accent);background:var(--accent-soft);font-weight:600;}
+
+  .side-footer{border-top:1px solid var(--border);padding-top:14px;margin-top:14px;}
+  .notif{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13.5px;padding:6px;}
+  .notif .dot{
+    width:20px;height:20px;border-radius:50%;background:var(--accent);
+    color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;
+  }
+  .user{display:flex;align-items:center;gap:10px;padding:10px 6px 0;}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  }
+  .user .name{font-size:13.5px;font-weight:600;}
+  .user .mail{font-size:12px;color:var(--text-faint);}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;padding:28px 34px;min-width:0;}
+  .crumbs{font-size:13px;color:var(--text-faint);margin-bottom:10px;display:none;}
+  .crumbs a{color:var(--text-faint);text-decoration:none;}
+  .crumbs .cur{color:var(--text);}
+
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px;}
+  .top h1{font-size:26px;margin:0 0 4px;}
+  .top p{margin:0;color:var(--text-dim);font-size:14px;}
+
+  .top-actions{display:flex;align-items:center;gap:10px;}
+  .view-toggle{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+  .view-toggle button{
+    border:none;background:transparent;color:var(--text-dim);
+    padding:9px 11px;cursor:pointer;font-size:14px;line-height:0;
+  }
+  .view-toggle button.active{background:var(--accent-soft);color:var(--accent);}
+
+  .search{position:relative;}
+  .search input{
+    background:var(--panel);border:1px solid var(--border);border-radius:9px;
+    padding:9px 14px 9px 34px;color:var(--text);font-size:13.5px;width:220px;outline:none;
+  }
+  .search input::placeholder{color:var(--text-faint);}
+  .search .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:13px;}
+
+  .btn-primary{
+    background:var(--accent);color:#fff;border:none;border-radius:9px;
+    padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+  }
+  .btn-primary:hover{background:#5457e5;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  .tabs button{
+    background:var(--panel);border:1px solid var(--border);color:var(--text-dim);
+    padding:8px 16px;border-radius:20px;font-size:13.5px;cursor:pointer;
+  }
+  .tabs button.active{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600;}
+
+  .empty{color:var(--text-faint);font-size:14px;padding:40px 0;text-align:center;}
+
+  /* ---------- Grid view ---------- */
+  #grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+  .card{
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px 18px 16px;cursor:pointer;border-top:3px solid var(--accent);
+    transition:transform .12s ease;
+  }
+  .card:hover{transform:translateY(-2px);}
+  .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .badge{font-size:11.5px;padding:3px 10px;border-radius:20px;font-weight:600;}
+  .badge.status-active{background:var(--green-soft);color:var(--green);}
+  .badge.status-review{background:var(--amber-soft);color:var(--amber);}
+  .badge.status-planning{background:var(--accent-soft);color:#a5a6f6;}
+  .badge.status-paused{background:var(--border-soft);color:var(--text-dim);}
+  .priority{font-size:12px;font-weight:600;}
+  .priority.p-critical{color:var(--red);}
+  .priority.p-high{color:var(--amber);}
+  .priority.p-medium{color:var(--text-dim);}
+  .priority.p-low{color:var(--text-faint);}
+
+  .card h3{margin:0 0 3px;font-size:16.5px;}
+  .card .grp{margin:0 0 16px;color:var(--text-dim);font-size:13px;}
+
+  .prog-label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;}
+  .prog-label b{color:var(--text);font-weight:700;}
+  .bar{height:6px;border-radius:6px;background:var(--border-soft);overflow:hidden;margin-bottom:16px;}
+  .bar > span{display:block;height:100%;border-radius:6px;background:var(--accent);}
+
+  .card-foot{display:flex;justify-content:space-between;align-items:center;}
+  .avatars{display:flex;}
+  .avatars .ini{
+    width:26px;height:26px;border-radius:50%;font-size:10.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;color:#fff;
+    border:2px solid var(--panel);margin-left:-8px;
+  }
+  .avatars .ini:first-child{margin-left:0;}
+  .due{font-size:12.5px;color:var(--text-faint);}
+
+  /* ---------- List view ---------- */
+  #list-view{display:none;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:11.5px;color:var(--text-faint);letter-spacing:.4px;
+    padding:14px 18px;border-bottom:1px solid var(--border);font-weight:600;
+  }
+  tbody td{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover{background:var(--panel-2);}
+  .proj-name{display:flex;align-items:center;gap:9px;font-weight:600;}
+  .proj-name .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .row-bar{display:flex;align-items:center;gap:10px;}
+  .row-bar .bar{flex:1;margin:0;width:110px;}
+  .row-bar span.pct{font-size:12.5px;color:var(--text-dim);width:32px;}
+
+  /* ---------- Detail view ---------- */
+  #detail-view{display:none;}
+  .detail-head{
+    background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--accent);
+    border-radius:var(--radius);padding:22px 24px;margin-bottom:22px;
+  }
+  .detail-head-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+  .detail-head h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px;}
+  .detail-head p{margin:0 0 16px;color:var(--text-dim);font-size:13.5px;max-width:640px;}
+  .meta-row{display:flex;gap:44px;margin-bottom:18px;flex-wrap:wrap;}
+  .meta-row div span{display:block;font-size:11px;color:var(--text-faint);margin-bottom:4px;}
+  .meta-row div b{font-size:14px;}
+  .detail-avatars{display:flex;}
+
+  .detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:22px;align-items:start;}
+  @media (max-width:880px){.detail-grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-bottom:20px;}
+  .panel h4{margin:0 0 16px;font-size:15px;}
+
+  .milestone{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
+  .milestone:last-child{border-bottom:none;}
+  .m-check{
+    width:20px;height:20px;border-radius:50%;border:2px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;
+  }
+  .m-check.done{background:var(--green);border-color:var(--green);color:#0a0e17;}
+  .milestone.done span.title{color:var(--text-faint);text-decoration:line-through;}
+  .milestone .done-label{margin-left:auto;color:var(--green);font-size:12.5px;font-weight:600;}
+
+  .comment{padding:12px 0;border-bottom:1px solid var(--border);}
+  .comment:last-child{border-bottom:none;}
+  .c-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+  .c-head b{font-size:13.5px;}
+  .c-head .when{color:var(--text-faint);font-size:12px;}
+  .comment p{margin:0;font-size:13.5px;color:var(--text-dim);}
+  .c-add{display:flex;gap:8px;margin-top:14px;}
+  .c-add input{
+    flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;
+    padding:9px 12px;color:var(--text);font-size:13.5px;outline:none;
+  }
+
+  .stat-row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:8px 0;}
+  .stat-row .sw{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;}
+  .stat-row b{font-weight:700;}
+
+  .team-row{display:flex;align-items:center;gap:10px;padding:9px 0;}
+  .team-row .name{font-size:13.5px;font-weight:600;}
+  .team-row .role{font-size:12px;color:var(--text-faint);}
+</style>
 </head>
 <body>
+
+<aside class="sidebar">
+  <div class="brand"><div class="logo">⚡</div><span>FlowTask</span></div>
+  <nav class="nav">
+    <a href="dashboard.html"><span class="ic">▦</span> Dashboard</a>
+    <a href="groups.html"><span class="ic">👥</span> Groups</a>
+    <a href="projects.html" class="active"><span class="ic">📁</span> Projects</a>
+    <a href="tasks.html"><span class="ic">☑</span> Tasks</a>
+  </nav>
+  <div class="side-footer">
+    <div class="notif"><span class="dot" id="notif-count">3</span> Notifications</div>
+    <div class="user">
+      <div class="avatar">NK</div>
+      <div>
+        <div class="name">Nguyen Khoa</div>
+        <div class="mail">nguyenkhoa@flowtask</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+  <!-- ============ LIST / GRID PAGE ============ -->
+  <section id="browse-view">
+    <div class="top">
+      <div>
+        <h1>Projects</h1>
+        <p id="count-label">Loading projects…</p>
+      </div>
+      <div class="top-actions">
+        <div class="view-toggle">
+          <button id="btn-grid" class="active" title="Grid view">▦</button>
+          <button id="btn-list" title="List view">☰</button>
+        </div>
+        <div class="search">
+          <span class="ic">🔍</span>
+          <input id="search-input" type="text" placeholder="Search...">
+        </div>
+        <button class="btn-primary" id="btn-new-project">+ New Project</button>
+      </div>
+    </div>
+
+    <div class="tabs" id="status-tabs">
+      <button data-status="" class="active">All</button>
+      <button data-status="ACTIVE">Active</button>
+      <button data-status="REVIEW">Review</button>
+      <button data-status="PLANNING">Planning</button>
+      <button data-status="PAUSED">Paused</button>
+    </div>
+
+    <div id="grid-view"></div>
+
+    <div id="list-view">
+      <table>
+        <thead>
+          <tr>
+            <th>Project</th><th>Group</th><th>Status</th><th>Priority</th>
+            <th>Progress</th><th>Deadline</th><th>Team</th>
+          </tr>
+        </thead>
+        <tbody id="list-body"></tbody>
+      </table>
+    </div>
+
+    <div class="empty" id="empty-state" style="display:none;">Không tìm thấy project nào.</div>
+  </section>
+
+  <!-- ============ DETAIL PAGE ============ -->
+  <section id="detail-view">
+    <div class="crumbs" style="display:block;">
+      <a href="#" id="crumb-back">Projects</a> / <span class="cur" id="crumb-name"></span>
+    </div>
+
+    <div class="detail-head">
+      <div class="detail-head-top">
+        <div>
+          <h2><span id="d-name"></span> <span class="badge" id="d-status-badge"></span></h2>
+          <p id="d-desc"></p>
+        </div>
+        <button class="btn-primary" id="btn-add-task">+ Add Task</button>
+      </div>
+      <div class="meta-row">
+        <div><span>GROUP</span><b id="d-group"></b></div>
+        <div><span>DEADLINE</span><b id="d-deadline"></b></div>
+        <div><span>TASKS</span><b id="d-tasks"></b></div>
+      </div>
+      <div class="prog-label"><span>Overall progress</span><b id="d-progress-pct"></b></div>
+      <div class="bar"><span id="d-progress-bar"></span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="active">Overview</button>
+      <button id="tab-goto-tasks">Tasks</button>
+      <button>Members</button>
+      <button>Settings</button>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <div class="panel">
+          <h4>Milestones</h4>
+          <div id="milestone-list"></div>
+        </div>
+        <div class="panel">
+          <h4>Comments</h4>
+          <div id="comment-list"></div>
+          <div class="c-add">
+            <input id="comment-author" type="text" placeholder="Tên của bạn" style="max-width:140px;">
+            <input id="comment-input" type="text" placeholder="Add a comment...">
+            <button class="btn-primary" id="btn-add-comment">Gửi</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h4>Task Breakdown</h4>
+          <div id="task-breakdown"></div>
+        </div>
+        <div class="panel">
+          <h4>Team</h4>
+          <div id="team-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const API_BASE = "http://localhost:8080/api/projects";
+
+const STATUS_LABEL   = {ACTIVE:"Active", REVIEW:"Review", PLANNING:"Planning", PAUSED:"Paused"};
+const STATUS_CLASS   = {ACTIVE:"status-active", REVIEW:"status-review", PLANNING:"status-planning", PAUSED:"status-paused"};
+const PRIORITY_CLASS = {CRITICAL:"p-critical", HIGH:"p-high", MEDIUM:"p-medium", LOW:"p-low"};
+const AVATAR_COLORS  = ["#6366f1","#22c55e","#f5b73f","#38bdf8","#f16a6a","#a855f7"];
+
+let allProjects = [];
+let currentView = "grid";      // "grid" | "list"
+let currentStatus = "";
+let currentSearch = "";
+let currentProject = null;
+
+function colorFor(initials){
+  let sum = 0;
+  for (const ch of initials) sum += ch.charCodeAt(0);
+  return AVATAR_COLORS[sum % AVATAR_COLORS.length];
+}
+
+function formatDate(iso){
+  if(!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US",{month:"short", day:"numeric"});
+}
+
+// ---------- Fetch & render list ----------
+
+async function loadProjects(){
+  try{
+    const params = new URLSearchParams();
+    if(currentStatus) params.set("status", currentStatus);
+    if(currentSearch) params.set("search", currentSearch);
+    const res = await fetch(`${API_BASE}?${params.toString()}`);
+    if(!res.ok) throw new Error("Fetch failed");
+    allProjects = await res.json();
+    renderBrowse();
+  }catch(err){
+    document.getElementById("count-label").textContent = "Không tải được dữ liệu từ server (kiểm tra backend đã chạy chưa).";
+    document.getElementById("grid-view").innerHTML = "";
+    document.getElementById("list-body").innerHTML = "";
+    console.error(err);
+  }
+}
+
+function renderBrowse(){
+  document.getElementById("count-label").textContent =
+    `${allProjects.length} project${allProjects.length === 1 ? "" : "s"} across all groups`;
+
+  document.getElementById("empty-state").style.display = allProjects.length ? "none" : "block";
+  renderGrid();
+  renderList();
+}
+
+function renderGrid(){
+  const grid = document.getElementById("grid-view");
+  grid.innerHTML = allProjects.map(p => `
+    <div class="card" data-id="${p.id}">
+      <div class="card-top">
+        <span class="badge ${STATUS_CLASS[p.status] || ""}">${STATUS_LABEL[p.status] || p.status}</span>
+        <span class="priority ${PRIORITY_CLASS[p.priority] || ""}">${p.priority || ""}</span>
+      </div>
+      <h3>${p.name}</h3>
+      <p class="grp">${p.groupName || ""}</p>
+      <div class="prog-label"><span>Progress</span><b>${p.progress}%</b></div>
+      <div class="bar"><span style="width:${p.progress}%"></span></div>
+      <div class="card-foot">
+        <div class="avatars">
+          ${(p.teamMembers || []).map(m => `<div class="ini" style="background:${colorFor(m)}">${m}</div>`).join("")}
+        </div>
+        <div class="due">Due ${formatDate(p.deadline)}</div>
+      </div>
+    </div>
+  `).join("");
+
+  grid.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("click", () => openDetail(card.dataset.id));
+  });
+}
+
+function renderList(){
+  const body = document.getElementById("list-body");
+  body.innerHTML = allProjects.map(p => `
+    <tr data-id="${p.id}">
+      <td><div class="proj-name"><span class="dot" style="background:${colorFor(p.groupName || p.name)}"></span>${p.name}</div></td>
+      <td>${p.groupName || ""}</td>
+      <td><span class="badge ${STATUS_CLASS[p.status] || ""}">${STATUS_LABEL[p.status] || p.status}</span></td>
+      <td><span class="priority ${PRIORITY_CLASS[p.priority] || ""}">${p.priority || ""}</span></td>
+      <td>
+        <div class="row-bar">
+          <div class="bar"><span style="width:${p.progress}%"></span></div>
+          <span class="pct">${p.progress}%</span>
+        </div>
+      </td>
+      <td>${formatDate(p.deadline)}</td>
+      <td>
+        <div class="avatars">
+          ${(p.teamMembers || []).map(m => `<div class="ini" style="background:${colorFor(m)}">${m}</div>`).join("")}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+
+  body.querySelectorAll("tr").forEach(row => {
+    row.addEventListener("click", () => openDetail(row.dataset.id));
+  });
+}
+
+// ---------- View toggle / filters / search ----------
+
+document.getElementById("btn-grid").addEventListener("click", () => switchView("grid"));
+document.getElementById("btn-list").addEventListener("click", () => switchView("list"));
+
+function switchView(view){
+  currentView = view;
+  document.getElementById("btn-grid").classList.toggle("active", view === "grid");
+  document.getElementById("btn-list").classList.toggle("active", view === "list");
+  document.getElementById("grid-view").style.display = view === "grid" ? "grid" : "none";
+  document.getElementById("list-view").style.display = view === "list" ? "block" : "none";
+}
+
+document.querySelectorAll("#status-tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#status-tabs button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentStatus = btn.dataset.status;
+    loadProjects();
+  });
+});
+
+let searchTimer;
+document.getElementById("search-input").addEventListener("input", (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentSearch = e.target.value.trim();
+    loadProjects();
+  }, 300);
+});
+
+document.getElementById("btn-new-project").addEventListener("click", () => {
+  // TODO: mở form/modal tạo project thật, hiện tại demo nhanh bằng prompt()
+  const name = prompt("Tên project mới:");
+  if(!name) return;
+  fetch(API_BASE, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name, description: "", groupName: "", status: "PLANNING",
+      priority: "MEDIUM", progress: 0, deadline: null, teamMembers: []
+    })
+  }).then(loadProjects);
+});
+
+// ---------- Detail view ----------
+
+async function openDetail(id){
+  try{
+    const res = await fetch(`${API_BASE}/${id}`);
+    if(!res.ok) throw new Error("Not found");
+    currentProject = await res.json();
+    renderDetail();
+    document.getElementById("browse-view").style.display = "none";
+    document.getElementById("detail-view").style.display = "block";
+  }catch(err){
+    alert("Không tải được project.");
+    console.error(err);
+  }
+}
+
+document.getElementById("crumb-back").addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("detail-view").style.display = "none";
+  document.getElementById("browse-view").style.display = "block";
+  loadProjects();
+});
+
+document.getElementById("tab-goto-tasks").addEventListener("click", () => {
+  window.location.href = `tasks.html?projectId=${currentProject.id}`;
+});
+
+function renderDetail(){
+  const p = currentProject;
+  document.getElementById("crumb-name").textContent = p.name;
+  document.getElementById("d-name").textContent = p.name;
+  document.getElementById("d-status-badge").textContent = STATUS_LABEL[p.status] || p.status;
+  document.getElementById("d-status-badge").className = `badge ${STATUS_CLASS[p.status] || ""}`;
+  document.getElementById("d-desc").textContent = p.description || "";
+  document.getElementById("d-group").textContent = p.groupName || "—";
+  document.getElementById("d-deadline").textContent = formatDate(p.deadline);
+
+  const done = p.taskDone||0, inProg = p.taskInProgress||0, review = p.taskReview||0, todo = p.taskTodo||0;
+  const total = done+inProg+review+todo;
+  document.getElementById("d-tasks").textContent = `${done}/${total}`;
+  document.getElementById("d-progress-pct").textContent = `${p.progress}%`;
+  document.getElementById("d-progress-bar").style.width = `${p.progress}%`;
+
+  // milestones
+  document.getElementById("milestone-list").innerHTML = (p.milestones || []).map((m, i) => `
+    <div class="milestone ${m.done ? "done" : ""}">
+      <div class="m-check ${m.done ? "done" : ""}" data-index="${i}">${m.done ? "✓" : ""}</div>
+      <span class="title">${m.title}</span>
+      ${m.done ? '<span class="done-label">Done</span>' : ""}
+    </div>
+  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có milestone.</p>`;
+
+  document.querySelectorAll(".m-check").forEach(el => {
+    el.addEventListener("click", () => toggleMilestone(el.dataset.index));
+  });
+
+  // comments
+  document.getElementById("comment-list").innerHTML = (p.comments || []).map(c => `
+    <div class="comment">
+      <div class="c-head"><b>${c.author}</b><span class="when">${formatDate(c.createdAt)}</span></div>
+      <p>${c.content}</p>
+    </div>
+  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có bình luận.</p>`;
+
+  // task breakdown
+  const breakdown = [
+    ["Done", done, "var(--green)"],
+    ["In Progress", inProg, "var(--accent)"],
+    ["Review", review, "var(--amber)"],
+    ["Todo", todo, "var(--text-faint)"],
+  ];
+  document.getElementById("task-breakdown").innerHTML = breakdown.map(([label,val,color]) => `
+    <div class="stat-row"><span><span class="sw" style="background:${color}"></span>${label}</span><b>${val}</b></div>
+  `).join("");
+
+  // team
+  document.getElementById("team-list").innerHTML = (p.teamMembers || []).map(m => `
+    <div class="team-row">
+      <div class="ini" style="width:32px;height:32px;border-radius:50%;background:${colorFor(m)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">${m}</div>
+      <div><div class="name">${m}</div></div>
+    </div>
+  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có thành viên.</p>`;
+}
+
+async function toggleMilestone(index){
+  await fetch(`${API_BASE}/${currentProject.id}/milestones/${index}`, {method:"PATCH"});
+  openDetail(currentProject.id);
+}
+
+document.getElementById("btn-add-comment").addEventListener("click", async () => {
+  const author = document.getElementById("comment-author").value.trim() || "Ẩn danh";
+  const content = document.getElementById("comment-input").value.trim();
+  if(!content) return;
+  await fetch(`${API_BASE}/${currentProject.id}/comments`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({author, content})
+  });
+  document.getElementById("comment-input").value = "";
+  openDetail(currentProject.id);
+});
+
+document.getElementById("btn-add-task").addEventListener("click", () => {
+  window.location.href = `tasks.html?projectId=${currentProject.id}&new=1`;
+});
+
+// ---------- Init ----------
+loadProjects();
+</script>
 
 </body>
 </html>
