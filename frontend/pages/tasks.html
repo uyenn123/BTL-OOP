@@ -2,9 +2,708 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #222;
+        }
+
+        .container {
+            width: 95%;
+            margin: 30px auto;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .add-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            background: #4338ca;
+        }
+
+        /* FILTER */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .filter-btn {
+            border: 1px solid #ddd;
+            background: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        /* KANBAN */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .column {
+            background: #e9ebf0;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 500px;
+        }
+
+        .column-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .task-list {
+            min-height: 450px;
+        }
+
+        /* TASK CARD */
+        .task {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: grab;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        .task:active {
+            cursor: grabbing;
+        }
+
+        .task h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .task p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .task-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .priority {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .low {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .member {
+            color: #555;
+        }
+
+        .task-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-actions button {
+            border: none;
+            padding: 5px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 450px;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel-btn {
+            border: 1px solid #ddd;
+            background: white;
+            padding: 9px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            border: none;
+            background: #4f46e5;
+            color: white;
+            padding: 9px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .board {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Tasks</h1>
+
+        <button class="add-btn" onclick="openModal()">
+            + Add Task
+        </button>
+    </div>
+
+    <!-- FILTER -->
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterTasks('All', this)">
+            All
+        </button>
+
+        <button class="filter-btn" onclick="filterTasks('NK', this)">
+            NK
+        </button>
+
+        <button class="filter-btn" onclick="filterTasks('LT', this)">
+            LT
+        </button>
+
+        <button class="filter-btn" onclick="filterTasks('HN', this)">
+            HN
+        </button>
+
+        <button class="filter-btn" onclick="filterTasks('PQ', this)">
+            PQ
+        </button>
+    </div>
+
+    <!-- BOARD -->
+    <div class="board">
+
+        <div class="column">
+            <div class="column-title">
+                <span>Todo</span>
+                <span id="todo-count">2</span>
+            </div>
+
+            <div class="task-list"
+                 id="todo"
+                 ondragover="allowDrop(event)"
+                 ondrop="drop(event)">
+
+                <div class="task"
+                     draggable="true"
+                     data-member="NK"
+                     ondragstart="drag(event)">
+
+                    <h3>Design Login Page</h3>
+
+                    <p>Create login interface based on Figma.</p>
+
+                    <div class="task-info">
+                        <span class="priority high">High</span>
+                        <span class="member">NK</span>
+                    </div>
+
+                    <div class="task-actions">
+                        <button class="edit-btn"
+                                onclick="editTask(this)">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                                onclick="deleteTask(this)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="task"
+                     draggable="true"
+                     data-member="LT"
+                     ondragstart="drag(event)">
+
+                    <h3>Create Database</h3>
+
+                    <p>Prepare database structure.</p>
+
+                    <div class="task-info">
+                        <span class="priority medium">Medium</span>
+                        <span class="member">LT</span>
+                    </div>
+
+                    <div class="task-actions">
+                        <button class="edit-btn"
+                                onclick="editTask(this)">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                                onclick="deleteTask(this)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="column">
+            <div class="column-title">
+                <span>In Progress</span>
+                <span id="progress-count">1</span>
+            </div>
+
+            <div class="task-list"
+                 id="progress"
+                 ondragover="allowDrop(event)"
+                 ondrop="drop(event)">
+
+                <div class="task"
+                     draggable="true"
+                     data-member="HN"
+                     ondragstart="drag(event)">
+
+                    <h3>Task Dashboard</h3>
+
+                    <p>Build dashboard interface.</p>
+
+                    <div class="task-info">
+                        <span class="priority high">High</span>
+                        <span class="member">HN</span>
+                    </div>
+
+                    <div class="task-actions">
+                        <button class="edit-btn"
+                                onclick="editTask(this)">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                                onclick="deleteTask(this)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="column">
+            <div class="column-title">
+                <span>Review</span>
+                <span>1</span>
+            </div>
+
+            <div class="task-list"
+                 id="review"
+                 ondragover="allowDrop(event)"
+                 ondrop="drop(event)">
+
+                <div class="task"
+                     draggable="true"
+                     data-member="PQ"
+                     ondragstart="drag(event)">
+
+                    <h3>Review Project</h3>
+
+                    <p>Check project before completing.</p>
+
+                    <div class="task-info">
+                        <span class="priority low">Low</span>
+                        <span class="member">PQ</span>
+                    </div>
+
+                    <div class="task-actions">
+                        <button class="edit-btn"
+                                onclick="editTask(this)">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                                onclick="deleteTask(this)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="column">
+            <div class="column-title">
+                <span>Done</span>
+                <span>1</span>
+            </div>
+
+            <div class="task-list"
+                 id="done"
+                 ondragover="allowDrop(event)"
+                 ondrop="drop(event)">
+
+                <div class="task"
+                     draggable="true"
+                     data-member="NK"
+                     ondragstart="drag(event)">
+
+                    <h3>Project Setup</h3>
+
+                    <p>Finish initial project setup.</p>
+
+                    <div class="task-info">
+                        <span class="priority low">Low</span>
+                        <span class="member">NK</span>
+                    </div>
+
+                    <div class="task-actions">
+                        <button class="edit-btn"
+                                onclick="editTask(this)">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                                onclick="deleteTask(this)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ADD TASK MODAL -->
+<div class="modal" id="taskModal">
+
+    <div class="modal-content">
+
+        <h2>Add Task</h2>
+
+        <div class="form-group">
+            <label>Task name</label>
+            <input type="text" id="taskName">
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="taskDescription"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Member</label>
+
+            <select id="taskMember">
+                <option value="NK">NK</option>
+                <option value="LT">LT</option>
+                <option value="HN">HN</option>
+                <option value="PQ">PQ</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Priority</label>
+
+            <select id="taskPriority">
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+
+        <div class="modal-buttons">
+
+            <button class="cancel-btn"
+                    onclick="closeModal()">
+                Cancel
+            </button>
+
+            <button class="save-btn"
+                    onclick="addTask()">
+                Add Task
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    let draggedTask = null;
+
+    function openModal() {
+        document.getElementById("taskModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("taskModal").style.display = "none";
+    }
+
+
+    function addTask() {
+
+        let name = document.getElementById("taskName").value;
+        let description = document.getElementById("taskDescription").value;
+        let member = document.getElementById("taskMember").value;
+        let priority = document.getElementById("taskPriority").value;
+
+        if (name.trim() === "") {
+            alert("Please enter task name!");
+            return;
+        }
+
+        let task = document.createElement("div");
+
+        task.className = "task";
+        task.draggable = true;
+        task.dataset.member = member;
+
+        task.ondragstart = function(event) {
+            drag(event);
+        };
+
+        task.innerHTML = `
+            <h3>${name}</h3>
+
+            <p>${description}</p>
+
+            <div class="task-info">
+                <span class="priority ${priority}">
+                    ${priority.charAt(0).toUpperCase() + priority.slice(1)}
+                </span>
+
+                <span class="member">
+                    ${member}
+                </span>
+            </div>
+
+            <div class="task-actions">
+
+                <button class="edit-btn"
+                        onclick="editTask(this)">
+                    Edit
+                </button>
+
+                <button class="delete-btn"
+                        onclick="deleteTask(this)">
+                    Delete
+                </button>
+
+            </div>
+        `;
+
+        document.getElementById("todo").appendChild(task);
+
+        document.getElementById("taskName").value = "";
+        document.getElementById("taskDescription").value = "";
+
+        closeModal();
+    }
+
+
+    function deleteTask(button) {
+
+        let task = button.parentElement.parentElement;
+
+        if (confirm("Delete this task?")) {
+            task.remove();
+        }
+    }
+
+
+    function editTask(button) {
+
+        let task = button.parentElement.parentElement;
+
+        let title = task.querySelector("h3");
+
+        let newName = prompt("Enter new task name:", title.innerText);
+
+        if (newName !== null && newName.trim() !== "") {
+            title.innerText = newName;
+        }
+    }
+
+
+    function drag(event) {
+
+        draggedTask = event.target;
+    }
+
+
+    function allowDrop(event) {
+
+        event.preventDefault();
+    }
+
+
+    function drop(event) {
+
+        event.preventDefault();
+
+        if (draggedTask !== null) {
+            event.currentTarget.appendChild(draggedTask);
+        }
+
+        draggedTask = null;
+    }
+
+
+    function filterTasks(member, button) {
+
+        let buttons = document.querySelectorAll(".filter-btn");
+
+        buttons.forEach(function(btn) {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        let tasks = document.querySelectorAll(".task");
+
+        tasks.forEach(function(task) {
+
+            if (member === "All" ||
+                task.dataset.member === member) {
+
+                task.style.display = "block";
+
+            } else {
+
+                task.style.display = "none";
+            }
+        });
+    }
+
+</script>
 
 </body>
 </html>
