@@ -12,9 +12,15 @@ public class ProjectRequest {
     private String groupName;
     private Project.ProjectStatus status;
     private Project.ProjectPriority priority;
-    private int progress;
+    private String color;
+    // Dùng Integer (nullable): field nào client không gửi thì giữ nguyên giá trị cũ, không bị reset về 0
+    private Integer progress;
     private LocalDate deadline;
-    private List<String> teamMembers;
+    private List<Project.TeamMember> teamMembers;
+    private Integer taskDone;
+    private Integer taskInProgress;
+    private Integer taskReview;
+    private Integer taskTodo;
 
     public ProjectRequest() {
     }
@@ -59,11 +65,19 @@ public class ProjectRequest {
         this.priority = priority;
     }
 
-    public int getProgress() {
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public Integer getProgress() {
         return progress;
     }
 
-    public void setProgress(int progress) {
+    public void setProgress(Integer progress) {
         this.progress = progress;
     }
 
@@ -75,11 +89,43 @@ public class ProjectRequest {
         this.deadline = deadline;
     }
 
-    public List<String> getTeamMembers() {
+    public List<Project.TeamMember> getTeamMembers() {
         return teamMembers;
     }
 
-    public void setTeamMembers(List<String> teamMembers) {
+    public void setTeamMembers(List<Project.TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
+    }
+
+    public Integer getTaskDone() {
+        return taskDone;
+    }
+
+    public void setTaskDone(Integer taskDone) {
+        this.taskDone = taskDone;
+    }
+
+    public Integer getTaskInProgress() {
+        return taskInProgress;
+    }
+
+    public void setTaskInProgress(Integer taskInProgress) {
+        this.taskInProgress = taskInProgress;
+    }
+
+    public Integer getTaskReview() {
+        return taskReview;
+    }
+
+    public void setTaskReview(Integer taskReview) {
+        this.taskReview = taskReview;
+    }
+
+    public Integer getTaskTodo() {
+        return taskTodo;
+    }
+
+    public void setTaskTodo(Integer taskTodo) {
+        this.taskTodo = taskTodo;
     }
 }

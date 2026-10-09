@@ -1,623 +1,878 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Projects · FlowTask</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0e17;
-    --panel:#111726;
-    --panel-2:#0d1220;
-    --border:#1f2637;
-    --border-soft:#232b3d;
-    --text:#e7eaf1;
-    --text-dim:#8b93a7;
-    --text-faint:#5c6478;
-    --accent:#6366f1;
-    --accent-soft:rgba(99,102,241,.15);
-    --green:#22c55e;
-    --green-soft:rgba(34,197,94,.14);
-    --amber:#f5b73f;
-    --amber-soft:rgba(245,183,63,.14);
-    --red:#f16a6a;
-    --red-soft:rgba(241,106,106,.14);
-    --cyan:#38bdf8;
-    --radius:10px;
+    --bg:#0B0D16;
+    --surface:#13162A;
+    --elevated:#1C2040;
+    --primary:#6366F1;
+    --primary-hover:#818CF8;
+    --accent:#A78BFA;
+    --success:#34D399;
+    --warning:#FBBF24;
+    --danger:#F87171;
+    --fg:#F0F2FF;
+    --fg-soft:#C7D0F8;
+    --muted:#8B92B3;
+    --font-display:'Plus Jakarta Sans',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
   }
   *{box-sizing:border-box;}
-  html,body{height:100%;}
+  /* Figma dùng Tailwind preflight: line-height 1.5 toàn cục, svg display:block */
+  html{line-height:1.5;-webkit-text-size-adjust:100%;}
+  html,body{margin:0;background:var(--bg);color:var(--fg);}
+  h1,h2,h3,h4,p{margin:0;}
+  svg{display:block;vertical-align:middle;}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    display:flex;
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;min-height:100vh;
   }
+  button,input{font:inherit;letter-spacing:inherit;color:inherit;}
+  button{background:transparent;border:0;padding:0;}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:99px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(99,102,241,.5);}
 
-  /* ---------- Sidebar ---------- */
+  /* ===== Sidebar (240px, gradient, SVG icons) ===== */
   .sidebar{
-    width:220px;
-    flex-shrink:0;
-    padding:20px 14px;
-    border-right:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
+    width:240px;flex-shrink:0;display:flex;flex-direction:column;
+    height:100vh;position:sticky;top:0;z-index:30;
+    background:linear-gradient(180deg,#131629 0%,#0E1024 100%);
+    border-right:1px solid rgba(99,102,241,.12);
   }
-  .brand{display:flex;align-items:center;gap:10px;padding:4px 6px 26px;}
+  .brand{padding:24px 20px;display:flex;align-items:center;gap:12px;}
   .brand .logo{
-    width:34px;height:34px;border-radius:9px;
-    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,#6366F1,#A78BFA);
     display:flex;align-items:center;justify-content:center;
-    font-size:16px;
+    box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
   }
-  .brand span{font-weight:700;font-size:17px;letter-spacing:.2px;}
-
-  .nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+  .brand span{font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--fg);letter-spacing:-.3px;}
+  .nav{flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:4px;}
   .nav a{
-    display:flex;align-items:center;gap:10px;
-    padding:9px 12px;border-radius:8px;
-    color:var(--text-dim);text-decoration:none;font-size:14px;
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
+    text-decoration:none;transition:all 150ms;font-weight:500;font-size:14px;
+    background:transparent;color:var(--muted);border-left:2px solid transparent;
   }
-  .nav a .ic{width:18px;text-align:center;}
-  .nav a:hover{color:var(--text);background:var(--panel);}
-  .nav a.active{color:var(--accent);background:var(--accent-soft);font-weight:600;}
-
-  .side-footer{border-top:1px solid var(--border);padding-top:14px;margin-top:14px;}
-  .notif{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:13.5px;padding:6px;}
-  .notif .dot{
-    width:20px;height:20px;border-radius:50%;background:var(--accent);
-    color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;
+  .nav a:hover{background:rgba(255,255,255,.04);color:var(--fg-soft);}
+  .nav a.active,.nav a.active:hover{background:rgba(99,102,241,.18);color:var(--primary-hover);border-left-color:var(--primary);}
+  .side-bottom{padding:0 12px 16px;display:flex;flex-direction:column;gap:4px;}
+  .side-btn{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
+    background:transparent;border:none;cursor:pointer;width:100%;transition:all 150ms;
+    color:var(--muted);font-weight:500;font-size:14px;text-align:left;
   }
-  .user{display:flex;align-items:center;gap:10px;padding:10px 6px 0;}
-  .avatar{
-    width:32px;height:32px;border-radius:50%;
-    background:linear-gradient(135deg,#6366f1,#8b5cf6);
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  .side-btn:hover{background:rgba(255,255,255,.05);color:var(--fg-soft);}
+  .bell{position:relative;display:flex;}
+  .bell .count{
+    position:absolute;top:-5px;right:-5px;background:var(--primary);border-radius:99px;
+    width:14px;height:14px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;
   }
-  .user .name{font-size:13.5px;font-weight:600;}
-  .user .mail{font-size:12px;color:var(--text-faint);}
+  .me-avatar{
+    width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#A78BFA);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#fff;
+  }
+  .me-name{font-size:13px;font-weight:600;color:var(--fg);line-height:1.2;}
+  .me-mail{font-size:11px;color:var(--muted);line-height:1.2;font-weight:400;}
 
-  /* ---------- Main ---------- */
-  .main{flex:1;padding:28px 34px;min-width:0;}
-  .crumbs{font-size:13px;color:var(--text-faint);margin-bottom:10px;display:none;}
-  .crumbs a{color:var(--text-faint);text-decoration:none;}
-  .crumbs .cur{color:var(--text);}
+  .notif-pop{
+    position:fixed;bottom:80px;left:248px;z-index:100;display:none;
+    background:var(--elevated);border:1px solid rgba(99,102,241,.2);border-radius:12px;
+    width:320px;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;
+  }
+  .notif-pop.open{display:block;}
+  .notif-head{padding:14px 16px;border-bottom:1px solid rgba(99,102,241,.12);display:flex;justify-content:space-between;align-items:center;}
+  .notif-head b{font-family:var(--font-display);font-weight:600;font-size:14px;}
+  .notif-head span{font-size:11px;color:var(--primary);cursor:pointer;}
+  .notif-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;align-items:flex-start;}
+  .notif-item.unread{background:rgba(99,102,241,.05);}
+  .notif-item .dot{width:6px;height:6px;margin-top:5px;flex-shrink:0;border-radius:50%;}
+  .notif-item.unread .dot{background:var(--primary);}
+  .notif-item p{font-size:13px;color:var(--fg-soft);line-height:1.4;margin:0;}
+  .notif-item small{display:block;font-size:11px;color:var(--muted);margin-top:4px;}
 
-  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px;}
-  .top h1{font-size:26px;margin:0 0 4px;}
-  .top p{margin:0;color:var(--text-dim);font-size:14px;}
+  /* ===== Main ===== */
+  .main{flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0;overflow-x:hidden;}
+  .page{flex:1;padding:32px 36px;}
 
-  .top-actions{display:flex;align-items:center;gap:10px;}
-  .view-toggle{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+  .top h1{font-family:var(--font-display);font-weight:700;font-size:24px;letter-spacing:-.3px;margin:0 0 4px;color:var(--fg);}
+  .top p{color:var(--muted);font-size:14px;margin:0;}
+  .top-actions{display:flex;gap:10px;align-items:center;}
+
+  .view-toggle{display:flex;background:var(--surface);border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;}
   .view-toggle button{
-    border:none;background:transparent;color:var(--text-dim);
-    padding:9px 11px;cursor:pointer;font-size:14px;line-height:0;
+    padding:7px 12px;border:none;cursor:pointer;background:transparent;color:var(--muted);
+    transition:all 150ms;display:flex;align-items:center;
   }
-  .view-toggle button.active{background:var(--accent-soft);color:var(--accent);}
+  .view-toggle button.active{background:rgba(99,102,241,.2);color:var(--primary-hover);}
 
-  .search{position:relative;}
-  .search input{
-    background:var(--panel);border:1px solid var(--border);border-radius:9px;
-    padding:9px 14px 9px 34px;color:var(--text);font-size:13.5px;width:220px;outline:none;
-  }
-  .search input::placeholder{color:var(--text-faint);}
-  .search .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:13px;}
+  .search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:8px 14px;}
+  .search input{background:transparent;border:none;outline:none;color:var(--fg);font-size:13px;font-family:var(--font-body);width:140px;}
+  .search input::placeholder{color:var(--muted);}
 
   .btn-primary{
-    background:var(--accent);color:#fff;border:none;border-radius:9px;
-    padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+    padding:9px 18px;border-radius:10px;background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;border:none;cursor:pointer;
+    font-family:var(--font-display);font-weight:600;font-size:13px;box-shadow:0 4px 14px rgba(99,102,241,.3);
+    display:flex;align-items:center;gap:7px;white-space:nowrap;
   }
-  .btn-primary:hover{background:#5457e5;}
+  .btn-primary.plain{box-shadow:none;}
 
-  .tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
-  .tabs button{
-    background:var(--panel);border:1px solid var(--border);color:var(--text-dim);
-    padding:8px 16px;border-radius:20px;font-size:13.5px;cursor:pointer;
+  .pills{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  .pills button{
+    padding:6px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-size:12px;font-weight:500;
+    font-family:var(--font-body);transition:all 150ms;background:transparent;color:var(--muted);
   }
-  .tabs button.active{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600;}
+  .pills button.active{border-color:var(--primary);background:rgba(99,102,241,.15);color:var(--primary-hover);}
 
-  .empty{color:var(--text-faint);font-size:14px;padding:40px 0;text-align:center;}
+  .state-msg{color:var(--muted);font-size:14px;padding:48px 0;text-align:center;}
+  .state-msg button{margin-top:14px;}
 
-  /* ---------- Grid view ---------- */
-  #grid-view{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
-  .card{
-    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
-    padding:18px 18px 16px;cursor:pointer;border-top:3px solid var(--accent);
-    transition:transform .12s ease;
-  }
-  .card:hover{transform:translateY(-2px);}
-  .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-  .badge{font-size:11.5px;padding:3px 10px;border-radius:20px;font-weight:600;}
-  .badge.status-active{background:var(--green-soft);color:var(--green);}
-  .badge.status-review{background:var(--amber-soft);color:var(--amber);}
-  .badge.status-planning{background:var(--accent-soft);color:#a5a6f6;}
-  .badge.status-paused{background:var(--border-soft);color:var(--text-dim);}
-  .priority{font-size:12px;font-weight:600;}
-  .priority.p-critical{color:var(--red);}
-  .priority.p-high{color:var(--amber);}
-  .priority.p-medium{color:var(--text-dim);}
-  .priority.p-low{color:var(--text-faint);}
-
-  .card h3{margin:0 0 3px;font-size:16.5px;}
-  .card .grp{margin:0 0 16px;color:var(--text-dim);font-size:13px;}
-
-  .prog-label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;}
-  .prog-label b{color:var(--text);font-weight:700;}
-  .bar{height:6px;border-radius:6px;background:var(--border-soft);overflow:hidden;margin-bottom:16px;}
-  .bar > span{display:block;height:100%;border-radius:6px;background:var(--accent);}
-
-  .card-foot{display:flex;justify-content:space-between;align-items:center;}
+  /* shared bits */
+  .badge{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:500;display:inline-block;}
+  .mono{font-family:var(--font-mono);}
   .avatars{display:flex;}
-  .avatars .ini{
-    width:26px;height:26px;border-radius:50%;font-size:10.5px;font-weight:700;
-    display:flex;align-items:center;justify-content:center;color:#fff;
-    border:2px solid var(--panel);margin-left:-8px;
+  .ini{
+    border:2px solid var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:700;flex-shrink:0;
   }
-  .avatars .ini:first-child{margin-left:0;}
-  .due{font-size:12.5px;color:var(--text-faint);}
+  .bar{background:rgba(255,255,255,.06);border-radius:99px;}
+  .bar > i{display:block;height:100%;border-radius:99px;}
 
-  /* ---------- List view ---------- */
-  #list-view{display:none;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  /* ===== Grid view ===== */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .card{
+    background:var(--surface);border-radius:14px;border:1px solid rgba(255,255,255,.06);padding:22px;cursor:pointer;
+    transition:all 200ms;position:relative;overflow:hidden;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--c40);}
+  .card .topbar,.head-card .topbar{position:absolute;top:0;left:0;right:0;height:3px;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .priority{font-size:11px;font-weight:600;}
+  .card h3{font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--fg);margin:0 0 4px;}
+  .card .grp{font-size:12px;color:var(--muted);margin:0 0 16px;min-height:15px;}
+  .prog{margin-bottom:14px;}
+  .prog-label{display:flex;justify-content:space-between;margin-bottom:6px;}
+  .prog-label span{font-size:11px;color:var(--muted);}
+  .prog-label b{font-size:11px;font-family:var(--font-mono);font-weight:500;}
+  .prog .bar{height:5px;}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);}
+  .card-foot .avatars .ini{width:24px;height:24px;font-size:8px;margin-left:-7px;}
+  .card-foot .avatars .ini:first-child{margin-left:0;}
+  .card-foot .due{font-size:11px;color:var(--muted);font-family:var(--font-mono);}
+
+  /* ===== List view ===== */
+  .list-wrap{background:var(--surface);border-radius:14px;border:1px solid rgba(255,255,255,.06);overflow:hidden;}
+  .list-scroll{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;}
-  thead th{
-    text-align:left;font-size:11.5px;color:var(--text-faint);letter-spacing:.4px;
-    padding:14px 18px;border-bottom:1px solid var(--border);font-weight:600;
+  thead tr{border-bottom:1px solid rgba(255,255,255,.05);}
+  th{padding:12px 20px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+  tbody tr{border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:rgba(99,102,241,.05);}
+  td{padding:14px 20px;}
+  .pname{display:flex;align-items:center;gap:10px;}
+  .pname .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .pname span{font-size:13px;font-weight:600;color:var(--fg);}
+  td .grp-cell{font-size:12px;color:var(--muted);}
+  td.prog-cell{min-width:120px;}
+  .row-bar{display:flex;align-items:center;gap:8px;}
+  .row-bar .bar{flex:1;height:4px;}
+  .row-bar .pct{font-size:11px;color:var(--muted);font-family:var(--font-mono);min-width:28px;}
+  td .dl{font-size:12px;color:var(--muted);font-family:var(--font-mono);}
+  td .avatars .ini{width:22px;height:22px;font-size:8px;margin-left:-6px;}
+  td .avatars .ini:first-child{margin-left:0;}
+
+  /* ===== Detail view ===== */
+  .crumbs{display:flex;align-items:center;gap:8px;margin-bottom:24px;}
+  .crumbs a{font-size:13px;color:var(--muted);cursor:pointer;text-decoration:none;}
+  .crumbs a:hover{color:var(--fg-soft);}
+  .crumbs .sep{color:var(--muted);}
+  .crumbs .cur{font-size:13px;color:var(--fg);font-weight:500;}
+
+  .head-card{
+    background:var(--surface);border-radius:16px;border:1px solid rgba(255,255,255,.06);
+    padding:28px 32px;margin-bottom:20px;position:relative;overflow:hidden;
   }
-  tbody td{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle;}
-  tbody tr:last-child td{border-bottom:none;}
-  tbody tr{cursor:pointer;}
-  tbody tr:hover{background:var(--panel-2);}
-  .proj-name{display:flex;align-items:center;gap:9px;font-weight:600;}
-  .proj-name .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-  .row-bar{display:flex;align-items:center;gap:10px;}
-  .row-bar .bar{flex:1;margin:0;width:110px;}
-  .row-bar span.pct{font-size:12.5px;color:var(--text-dim);width:32px;}
+  .head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .head-left{flex:1;min-width:0;}
+  .title-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;}
+  .title-row h1{font-family:var(--font-display);font-weight:700;font-size:22px;margin:0;color:var(--fg);}
+  .desc{color:var(--muted);font-size:13px;margin:0 0 20px;max-width:600px;line-height:1.6;}
+  .meta{display:flex;gap:28px;flex-wrap:wrap;}
+  .meta .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+  .meta .v{font-size:14px;font-weight:600;color:var(--fg);}
+  .head-right{display:flex;flex-direction:column;align-items:flex-end;gap:16px;}
+  .head-right .avatars .ini{width:34px;height:34px;font-size:11px;margin-left:-10px;}
+  .head-right .avatars .ini:first-child{margin-left:0;}
+  .head-prog{margin-top:20px;}
+  .head-prog .row{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .head-prog .row span{font-size:12px;color:var(--muted);}
+  .head-prog .row b{font-size:12px;font-family:var(--font-mono);font-weight:400;}
+  .head-prog .bar{height:7px;}
 
-  /* ---------- Detail view ---------- */
-  #detail-view{display:none;}
-  .detail-head{
-    background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--accent);
-    border-radius:var(--radius);padding:22px 24px;margin-bottom:22px;
+  .tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.07);}
+  .tabs button{
+    padding:10px 20px;background:transparent;border:none;cursor:pointer;font-family:var(--font-body);font-weight:500;font-size:13px;
+    transition:all 150ms;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;
   }
-  .detail-head-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
-  .detail-head h2{margin:0 0 4px;font-size:21px;display:flex;align-items:center;gap:10px;}
-  .detail-head p{margin:0 0 16px;color:var(--text-dim);font-size:13.5px;max-width:640px;}
-  .meta-row{display:flex;gap:44px;margin-bottom:18px;flex-wrap:wrap;}
-  .meta-row div span{display:block;font-size:11px;color:var(--text-faint);margin-bottom:4px;}
-  .meta-row div b{font-size:14px;}
-  .detail-avatars{display:flex;}
+  .tabs button.active{color:var(--primary-hover);border-bottom-color:var(--primary);}
 
-  .detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:22px;align-items:start;}
-  @media (max-width:880px){.detail-grid{grid-template-columns:1fr;}}
-
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-bottom:20px;}
-  .panel h4{margin:0 0 16px;font-size:15px;}
-
-  .milestone{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
-  .milestone:last-child{border-bottom:none;}
-  .m-check{
-    width:20px;height:20px;border-radius:50%;border:2px solid var(--border-soft);
-    display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;flex-shrink:0;
+  .overview{display:grid;grid-template-columns:1fr 320px;gap:20px;}
+  .box{background:var(--surface);border-radius:14px;border:1px solid rgba(255,255,255,.06);}
+  .box.clip{overflow:hidden;}
+  .box-title{font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--fg);}
+  .ms-head{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .ms-list{padding:8px 0;}
+  .ms{padding:14px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid rgba(255,255,255,.03);}
+  .ms-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.15);background:transparent;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;padding:0;transition:all 150ms;
   }
-  .m-check.done{background:var(--green);border-color:var(--green);color:#0a0e17;}
-  .milestone.done span.title{color:var(--text-faint);text-decoration:line-through;}
-  .milestone .done-label{margin-left:auto;color:var(--green);font-size:12.5px;font-weight:600;}
+  .ms-check:hover{border-color:rgba(255,255,255,.35);}
+  .ms.done .ms-check{border-color:var(--success);background:rgba(52,211,153,.15);}
+  .ms-title{font-size:13px;color:var(--fg-soft);}
+  .ms.done .ms-title{color:var(--muted);text-decoration:line-through;}
+  .ms .done-tag{margin-left:auto;font-size:11px;color:var(--success);}
+  .empty-note{padding:14px 22px;font-size:13px;color:var(--muted);}
 
-  .comment{padding:12px 0;border-bottom:1px solid var(--border);}
-  .comment:last-child{border-bottom:none;}
-  .c-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
-  .c-head b{font-size:13.5px;}
-  .c-head .when{color:var(--text-faint);font-size:12px;}
-  .comment p{margin:0;font-size:13.5px;color:var(--text-dim);}
-  .c-add{display:flex;gap:8px;margin-top:14px;}
-  .c-add input{
-    flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;
-    padding:9px 12px;color:var(--text);font-size:13.5px;outline:none;
+  .cm-wrap{padding:18px 22px;border-top:1px solid rgba(255,255,255,.06);}
+  .cm-wrap .box-title{display:block;margin-bottom:14px;}
+  .cm{display:flex;gap:12px;margin-bottom:14px;}
+  .cm-av{
+    width:30px;height:30px;border-radius:50%;background:rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--primary-hover);flex-shrink:0;
   }
+  .cm-body{flex:1;min-width:0;background:var(--elevated);border-radius:10px;padding:10px 14px;}
+  .cm-head{display:flex;justify-content:space-between;margin-bottom:4px;gap:8px;}
+  .cm-head b{font-size:12px;font-weight:600;color:var(--fg-soft);}
+  .cm-head span{font-size:11px;color:var(--muted);font-family:var(--font-mono);white-space:nowrap;}
+  .cm-body p{margin:0;font-size:13px;color:var(--muted);line-height:1.5;word-break:break-word;}
+  .cm-add{display:flex;gap:10px;margin-top:12px;}
+  .cm-add input{
+    flex:1;min-width:0;background:var(--elevated);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:9px 14px;
+    color:var(--fg);font-size:13px;font-family:var(--font-body);outline:none;
+  }
+  .cm-add input::placeholder{color:var(--muted);}
+  .cm-add input:focus{border-color:rgba(99,102,241,.5);}
 
-  .stat-row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:8px 0;}
-  .stat-row .sw{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;}
-  .stat-row b{font-weight:700;}
+  .side-col{display:flex;flex-direction:column;gap:14px;}
+  .side-box{padding:18px 20px;}
+  .side-box .box-title{margin-bottom:16px;}
+  .side-box.team .box-title{margin-bottom:14px;}
+  .bk{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .bk .lab{display:flex;align-items:center;gap:8px;}
+  .bk .sw{width:8px;height:8px;border-radius:50%;}
+  .bk .lab span{font-size:13px;color:var(--muted);}
+  .bk b{font-size:13px;font-weight:600;font-family:var(--font-mono);}
+  .tm{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .tm .ini{width:32px;height:32px;font-size:11px;border:none;}
+  .tm .n{font-size:13px;font-weight:500;color:var(--fg-soft);}
+  .tm .r{font-size:11px;color:var(--muted);}
 
-  .team-row{display:flex;align-items:center;gap:10px;padding:9px 0;}
-  .team-row .name{font-size:13.5px;font-weight:600;}
-  .team-row .role{font-size:12px;color:var(--text-faint);}
+  .tasks-tab{display:flex;justify-content:center;align-items:center;height:200px;}
+  .tasks-tab .btn-primary{padding:12px 24px;box-shadow:none;font-size:14px;}
+
+  /* ===== Responsive (Figma chỉ thiết kế desktop; phần này chỉ để không vỡ layout) ===== */
+  @media (max-width:1180px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:1000px){.overview{grid-template-columns:1fr;}}
+  @media (max-width:760px){.grid{grid-template-columns:1fr;}.page{padding:24px 18px;}}
 </style>
 </head>
 <body>
 
+<!-- ================= SIDEBAR ================= -->
 <aside class="sidebar">
-  <div class="brand"><div class="logo">⚡</div><span>FlowTask</span></div>
+  <div class="brand">
+    <div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <span>FlowTask</span>
+  </div>
+
   <nav class="nav">
-    <a href="dashboard.html"><span class="ic">▦</span> Dashboard</a>
-    <a href="groups.html"><span class="ic">👥</span> Groups</a>
-    <a href="projects.html" class="active"><span class="ic">📁</span> Projects</a>
-    <a href="tasks.html"><span class="ic">☑</span> Tasks</a>
+    <a href="dashboard.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="groups.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Groups
+    </a>
+    <a href="projects.html" class="active" id="nav-projects">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Projects
+    </a>
+    <a href="tasks.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Tasks
+    </a>
   </nav>
-  <div class="side-footer">
-    <div class="notif"><span class="dot" id="notif-count">3</span> Notifications</div>
-    <div class="user">
-      <div class="avatar">NK</div>
-      <div>
-        <div class="name">Nguyen Khoa</div>
-        <div class="mail">nguyenkhoa@flowtask</div>
+
+  <div class="side-bottom">
+    <button class="side-btn" id="btn-notif" type="button">
+      <div class="bell">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="count" id="notif-count">3</span>
       </div>
-    </div>
+      Notifications
+    </button>
+    <button class="side-btn" id="btn-profile" type="button" style="padding:9px 12px;">
+      <div class="me-avatar" id="me-avatar">NK</div>
+      <div>
+        <div class="me-name" id="me-name">Nguyen Khoa</div>
+        <div class="me-mail" id="me-mail">nguyenkhoa@flowtask</div>
+      </div>
+    </button>
   </div>
 </aside>
 
+<div class="notif-pop" id="notif-pop">
+  <div class="notif-head"><b>Notifications</b><span id="mark-read">Mark all read</span></div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- ================= MAIN ================= -->
 <main class="main">
+  <div class="page">
 
-  <!-- ============ LIST / GRID PAGE ============ -->
-  <section id="browse-view">
-    <div class="top">
-      <div>
-        <h1>Projects</h1>
-        <p id="count-label">Loading projects…</p>
-      </div>
-      <div class="top-actions">
-        <div class="view-toggle">
-          <button id="btn-grid" class="active" title="Grid view">▦</button>
-          <button id="btn-list" title="List view">☰</button>
-        </div>
-        <div class="search">
-          <span class="ic">🔍</span>
-          <input id="search-input" type="text" placeholder="Search...">
-        </div>
-        <button class="btn-primary" id="btn-new-project">+ New Project</button>
-      </div>
-    </div>
-
-    <div class="tabs" id="status-tabs">
-      <button data-status="" class="active">All</button>
-      <button data-status="ACTIVE">Active</button>
-      <button data-status="REVIEW">Review</button>
-      <button data-status="PLANNING">Planning</button>
-      <button data-status="PAUSED">Paused</button>
-    </div>
-
-    <div id="grid-view"></div>
-
-    <div id="list-view">
-      <table>
-        <thead>
-          <tr>
-            <th>Project</th><th>Group</th><th>Status</th><th>Priority</th>
-            <th>Progress</th><th>Deadline</th><th>Team</th>
-          </tr>
-        </thead>
-        <tbody id="list-body"></tbody>
-      </table>
-    </div>
-
-    <div class="empty" id="empty-state" style="display:none;">Không tìm thấy project nào.</div>
-  </section>
-
-  <!-- ============ DETAIL PAGE ============ -->
-  <section id="detail-view">
-    <div class="crumbs" style="display:block;">
-      <a href="#" id="crumb-back">Projects</a> / <span class="cur" id="crumb-name"></span>
-    </div>
-
-    <div class="detail-head">
-      <div class="detail-head-top">
+    <!-- ===== Browse (grid / list) ===== -->
+    <section id="browse-view">
+      <div class="top">
         <div>
-          <h2><span id="d-name"></span> <span class="badge" id="d-status-badge"></span></h2>
-          <p id="d-desc"></p>
+          <h1>Projects</h1>
+          <p id="count-label">Loading projects…</p>
         </div>
-        <button class="btn-primary" id="btn-add-task">+ Add Task</button>
-      </div>
-      <div class="meta-row">
-        <div><span>GROUP</span><b id="d-group"></b></div>
-        <div><span>DEADLINE</span><b id="d-deadline"></b></div>
-        <div><span>TASKS</span><b id="d-tasks"></b></div>
-      </div>
-      <div class="prog-label"><span>Overall progress</span><b id="d-progress-pct"></b></div>
-      <div class="bar"><span id="d-progress-bar"></span></div>
-    </div>
-
-    <div class="tabs">
-      <button class="active">Overview</button>
-      <button id="tab-goto-tasks">Tasks</button>
-      <button>Members</button>
-      <button>Settings</button>
-    </div>
-
-    <div class="detail-grid">
-      <div>
-        <div class="panel">
-          <h4>Milestones</h4>
-          <div id="milestone-list"></div>
-        </div>
-        <div class="panel">
-          <h4>Comments</h4>
-          <div id="comment-list"></div>
-          <div class="c-add">
-            <input id="comment-author" type="text" placeholder="Tên của bạn" style="max-width:140px;">
-            <input id="comment-input" type="text" placeholder="Add a comment...">
-            <button class="btn-primary" id="btn-add-comment">Gửi</button>
+        <div class="top-actions">
+          <div class="view-toggle">
+            <button id="btn-grid" class="active" type="button" title="Grid view">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </button>
+            <button id="btn-list" type="button" title="List view">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
           </div>
+          <div class="search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B92B3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="search-input" type="text" placeholder="Search…" autocomplete="off">
+          </div>
+          <button class="btn-primary" id="btn-new-project" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Project
+          </button>
         </div>
       </div>
-      <div>
-        <div class="panel">
-          <h4>Task Breakdown</h4>
-          <div id="task-breakdown"></div>
-        </div>
-        <div class="panel">
-          <h4>Team</h4>
-          <div id="team-list"></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
+      <div class="pills" id="status-pills">
+        <button type="button" data-filter="All" class="active">All</button>
+        <button type="button" data-filter="Active">Active</button>
+        <button type="button" data-filter="Review">Review</button>
+        <button type="button" data-filter="Planning">Planning</button>
+        <button type="button" data-filter="Paused">Paused</button>
+      </div>
+
+      <div id="grid-view" class="grid"></div>
+
+      <div id="list-view" class="list-wrap" style="display:none;">
+        <div class="list-scroll">
+          <table>
+            <thead>
+              <tr><th>Project</th><th>Group</th><th>Status</th><th>Priority</th><th>Progress</th><th>Deadline</th><th>Team</th></tr>
+            </thead>
+            <tbody id="list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="state-msg" id="state-msg" style="display:none;"></div>
+    </section>
+
+    <!-- ===== Detail ===== -->
+    <section id="detail-view" style="display:none;"></section>
+
+  </div>
 </main>
 
 <script>
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
 const API_BASE = "http://localhost:8080/api/projects";
 
-const STATUS_LABEL   = {ACTIVE:"Active", REVIEW:"Review", PLANNING:"Planning", PAUSED:"Paused"};
-const STATUS_CLASS   = {ACTIVE:"status-active", REVIEW:"status-review", PLANNING:"status-planning", PAUSED:"status-paused"};
-const PRIORITY_CLASS = {CRITICAL:"p-critical", HIGH:"p-high", MEDIUM:"p-medium", LOW:"p-low"};
-const AVATAR_COLORS  = ["#6366f1","#22c55e","#f5b73f","#38bdf8","#f16a6a","#a855f7"];
+// TODO: thay bằng user đăng nhập thật khi phần Auth của nhóm xong (Figma đang hard-code Nguyen Khoa)
+const CURRENT_USER = { name: "Nguyen Khoa", email: "nguyenkhoa@flowtask" };
 
+// Bảng màu lấy từ Figma: project #1..#6 lần lượt dùng 6 màu này
+const PALETTE = ["#6366F1", "#A78BFA", "#34D399", "#38BDF8", "#FBBF24", "#F87171"];
+
+const STATUS_LABEL = { ACTIVE: "Active", REVIEW: "Review", PLANNING: "Planning", PAUSED: "Paused" };
+const STATUS_STYLE = {
+  ACTIVE:   { bg: "rgba(52,211,153,0.12)",  text: "#34D399" },
+  REVIEW:   { bg: "rgba(251,191,36,0.12)",  text: "#FBBF24" },
+  PLANNING: { bg: "rgba(99,102,241,0.12)",  text: "#818CF8" },
+  PAUSED:   { bg: "rgba(255,255,255,0.06)", text: "#8B92B3" },
+};
+const PRIORITY_LABEL = { CRITICAL: "Critical", HIGH: "High", MEDIUM: "Medium", LOW: "Low" };
+
+const NOTIFICATIONS = [
+  { id: 1, text: 'Minh Khoa assigned you a task in "Q4 Launch"', time: "2m ago",  unread: true  },
+  { id: 2, text: 'Linh Tran commented on "API Integration"',     time: "15m ago", unread: true  },
+  { id: 3, text: "Sprint 7 deadline is tomorrow",                time: "1h ago",  unread: false },
+];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
 let allProjects = [];
-let currentView = "grid";      // "grid" | "list"
-let currentStatus = "";
-let currentSearch = "";
+let loaded = false;
+let loadError = false;
+let view = "grid";          // "grid" | "list"
+let filter = "All";
+let search = "";
 let currentProject = null;
+let currentTab = "Overview";
+let commentDraft = "";
 
-function colorFor(initials){
-  let sum = 0;
-  for (const ch of initials) sum += ch.charCodeAt(0);
-  return AVATAR_COLORS[sum % AVATAR_COLORS.length];
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 }
 
-function formatDate(iso){
-  if(!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US",{month:"short", day:"numeric"});
+function initialsOf(name){
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-// ---------- Fetch & render list ----------
+function projectColor(p){
+  if (p.color && /^#[0-9a-fA-F]{6}$/.test(p.color)) return p.color;
+  return PALETTE[(((Number(p.id) || 1) - 1) % PALETTE.length + PALETTE.length) % PALETTE.length];
+}
 
+function taskCounts(p){
+  const done = p.taskDone || 0, inProgress = p.taskInProgress || 0, review = p.taskReview || 0, todo = p.taskTodo || 0;
+  return { done, inProgress, review, todo, total: done + inProgress + review + todo };
+}
+
+// Figma: progress = round(done / tasks * 100). Chưa có task nào thì dùng progress nhập tay từ backend
+function progressOf(p){
+  const t = taskCounts(p);
+  return t.total ? Math.round(t.done / t.total * 100) : Math.min(100, Math.max(0, p.progress || 0));
+}
+
+function priorityColor(pr){
+  return pr === "CRITICAL" ? "#F87171" : pr === "HIGH" ? "#FBBF24" : "#8B92B3";
+}
+
+// Backend có thể trả teamMembers là ["NK","LT"] (cũ) hoặc [{initials,name,role}] (mới)
+function membersOf(p){
+  return (p.teamMembers || []).map((m, i) => {
+    const o = typeof m === "string" ? { initials: m, name: m, role: "" } : (m || {});
+    const name = o.name || o.initials || "";
+    return {
+      name,
+      role: o.role || "",
+      initials: o.initials || initialsOf(name),
+      color: PALETTE[i % PALETTE.length],
+    };
+  });
+}
+
+function parseDate(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;   // parse theo giờ local, tránh lệch ngày do UTC
+}
+function formatDate(iso, withYear){
+  const d = parseDate(iso);
+  if (!d) return "—";
+  const opts = { month: "short", day: "numeric" };
+  if (withYear) opts.year = "numeric";
+  return d.toLocaleDateString("en-US", opts);
+}
+
+function commentTime(c){
+  if (c.postedAt){
+    const t = new Date(c.postedAt).getTime();
+    if (!isNaN(t)){
+      const s = Math.max(0, (Date.now() - t) / 1000);
+      if (s < 60) return "just now";
+      if (s < 3600) return Math.floor(s / 60) + "m ago";
+      if (s < 86400) return Math.floor(s / 3600) + "h ago";
+      if (s < 7 * 86400) return Math.floor(s / 86400) + "d ago";
+      return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+  }
+  // bình luận cũ chỉ có ngày (createdAt)
+  const d = parseDate(c.createdAt);
+  if (!d) return "";
+  const now = new Date();
+  const days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - d) / 86400000);
+  if (days <= 0) return "Today";
+  if (days < 7) return days + "d ago";
+  return formatDate(c.createdAt, true);
+}
+
+function avatarsHtml(p, max = 3){
+  const color = projectColor(p);
+  return membersOf(p).slice(0, max).map(m =>
+    `<div class="ini" style="background:${color}30;color:${color}">${esc(m.initials)}</div>`
+  ).join("");
+}
+
+async function api(path = "", options){
+  const res = await fetch(API_BASE + path, options);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.status === 204 ? null : res.json();
+}
+
+/* =====================================================================
+   SIDEBAR (user + notifications)
+   ===================================================================== */
+$("me-name").textContent = CURRENT_USER.name;
+$("me-mail").textContent = CURRENT_USER.email;
+$("me-avatar").textContent = initialsOf(CURRENT_USER.name);
+$("btn-profile").addEventListener("click", () => { window.location.href = "profile.html"; });
+
+let notifCount = 3;
+function renderNotifications(){
+  $("notif-list").innerHTML = NOTIFICATIONS.map(n => `
+    <div class="notif-item ${n.unread ? "unread" : ""}">
+      <div class="dot"></div>
+      <div><p>${esc(n.text)}</p><small>${esc(n.time)}</small></div>
+    </div>`).join("");
+  // Figma: badge cố định "3" (notifCount); chỉ ẩn khi bấm "Mark all read"
+  $("notif-count").style.display = notifCount ? "flex" : "none";
+  $("notif-count").textContent = notifCount;
+}
+$("btn-notif").addEventListener("click", (e) => { e.stopPropagation(); $("notif-pop").classList.toggle("open"); });
+$("notif-pop").addEventListener("click", (e) => e.stopPropagation());
+document.addEventListener("click", () => $("notif-pop").classList.remove("open"));
+$("mark-read").addEventListener("click", () => { NOTIFICATIONS.forEach(n => n.unread = false); notifCount = 0; renderNotifications(); });
+renderNotifications();
+
+/* =====================================================================
+   BROWSE: load / filter / render
+   ===================================================================== */
 async function loadProjects(){
   try{
-    const params = new URLSearchParams();
-    if(currentStatus) params.set("status", currentStatus);
-    if(currentSearch) params.set("search", currentSearch);
-    const res = await fetch(`${API_BASE}?${params.toString()}`);
-    if(!res.ok) throw new Error("Fetch failed");
-    allProjects = await res.json();
-    renderBrowse();
+    allProjects = await api();
+    loadError = false;
   }catch(err){
-    document.getElementById("count-label").textContent = "Không tải được dữ liệu từ server (kiểm tra backend đã chạy chưa).";
-    document.getElementById("grid-view").innerHTML = "";
-    document.getElementById("list-body").innerHTML = "";
     console.error(err);
+    loadError = true;
+    allProjects = [];
   }
+  loaded = true;
+  renderBrowse();
+}
+
+function filteredProjects(){
+  const q = search.toLowerCase();
+  return allProjects.filter(p =>
+    (filter === "All" || STATUS_LABEL[p.status] === filter) &&
+    (p.name || "").toLowerCase().includes(q)
+  );
 }
 
 function renderBrowse(){
-  document.getElementById("count-label").textContent =
-    `${allProjects.length} project${allProjects.length === 1 ? "" : "s"} across all groups`;
+  const list = filteredProjects();
+  const total = allProjects.length;
 
-  document.getElementById("empty-state").style.display = allProjects.length ? "none" : "block";
-  renderGrid();
-  renderList();
-}
+  $("count-label").textContent = !loaded ? "Loading projects…"
+    : loadError ? "Couldn't reach the server"
+    : `${total} project${total === 1 ? "" : "s"} across all groups`;
 
-function renderGrid(){
-  const grid = document.getElementById("grid-view");
-  grid.innerHTML = allProjects.map(p => `
-    <div class="card" data-id="${p.id}">
-      <div class="card-top">
-        <span class="badge ${STATUS_CLASS[p.status] || ""}">${STATUS_LABEL[p.status] || p.status}</span>
-        <span class="priority ${PRIORITY_CLASS[p.priority] || ""}">${p.priority || ""}</span>
-      </div>
-      <h3>${p.name}</h3>
-      <p class="grp">${p.groupName || ""}</p>
-      <div class="prog-label"><span>Progress</span><b>${p.progress}%</b></div>
-      <div class="bar"><span style="width:${p.progress}%"></span></div>
-      <div class="card-foot">
-        <div class="avatars">
-          ${(p.teamMembers || []).map(m => `<div class="ini" style="background:${colorFor(m)}">${m}</div>`).join("")}
-        </div>
-        <div class="due">Due ${formatDate(p.deadline)}</div>
-      </div>
-    </div>
-  `).join("");
-
-  grid.querySelectorAll(".card").forEach(card => {
-    card.addEventListener("click", () => openDetail(card.dataset.id));
-  });
-}
-
-function renderList(){
-  const body = document.getElementById("list-body");
-  body.innerHTML = allProjects.map(p => `
-    <tr data-id="${p.id}">
-      <td><div class="proj-name"><span class="dot" style="background:${colorFor(p.groupName || p.name)}"></span>${p.name}</div></td>
-      <td>${p.groupName || ""}</td>
-      <td><span class="badge ${STATUS_CLASS[p.status] || ""}">${STATUS_LABEL[p.status] || p.status}</span></td>
-      <td><span class="priority ${PRIORITY_CLASS[p.priority] || ""}">${p.priority || ""}</span></td>
-      <td>
-        <div class="row-bar">
-          <div class="bar"><span style="width:${p.progress}%"></span></div>
-          <span class="pct">${p.progress}%</span>
-        </div>
-      </td>
-      <td>${formatDate(p.deadline)}</td>
-      <td>
-        <div class="avatars">
-          ${(p.teamMembers || []).map(m => `<div class="ini" style="background:${colorFor(m)}">${m}</div>`).join("")}
-        </div>
-      </td>
-    </tr>
-  `).join("");
-
-  body.querySelectorAll("tr").forEach(row => {
-    row.addEventListener("click", () => openDetail(row.dataset.id));
-  });
-}
-
-// ---------- View toggle / filters / search ----------
-
-document.getElementById("btn-grid").addEventListener("click", () => switchView("grid"));
-document.getElementById("btn-list").addEventListener("click", () => switchView("list"));
-
-function switchView(view){
-  currentView = view;
-  document.getElementById("btn-grid").classList.toggle("active", view === "grid");
-  document.getElementById("btn-list").classList.toggle("active", view === "list");
-  document.getElementById("grid-view").style.display = view === "grid" ? "grid" : "none";
-  document.getElementById("list-view").style.display = view === "list" ? "block" : "none";
-}
-
-document.querySelectorAll("#status-tabs button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#status-tabs button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentStatus = btn.dataset.status;
-    loadProjects();
-  });
-});
-
-let searchTimer;
-document.getElementById("search-input").addEventListener("input", (e) => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    currentSearch = e.target.value.trim();
-    loadProjects();
-  }, 300);
-});
-
-document.getElementById("btn-new-project").addEventListener("click", () => {
-  // TODO: mở form/modal tạo project thật, hiện tại demo nhanh bằng prompt()
-  const name = prompt("Tên project mới:");
-  if(!name) return;
-  fetch(API_BASE, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      name, description: "", groupName: "", status: "PLANNING",
-      priority: "MEDIUM", progress: 0, deadline: null, teamMembers: []
-    })
-  }).then(loadProjects);
-});
-
-// ---------- Detail view ----------
-
-async function openDetail(id){
-  try{
-    const res = await fetch(`${API_BASE}/${id}`);
-    if(!res.ok) throw new Error("Not found");
-    currentProject = await res.json();
-    renderDetail();
-    document.getElementById("browse-view").style.display = "none";
-    document.getElementById("detail-view").style.display = "block";
-  }catch(err){
-    alert("Không tải được project.");
-    console.error(err);
+  const msg = $("state-msg");
+  if (loadError){
+    msg.innerHTML = `Couldn't load projects. Make sure the backend is running on port 8080.<br><button class="btn-primary plain" id="btn-retry" type="button">Retry</button>`;
+    msg.style.display = "block";
+    $("btn-retry").addEventListener("click", () => { $("count-label").textContent = "Loading projects…"; loadProjects(); });
+  }else if (!list.length){
+    msg.textContent = total ? "No projects match your filters." : "No projects yet. Create your first one with “New Project”.";
+    msg.style.display = "block";
+  }else{
+    msg.style.display = "none";
   }
+
+  $("grid-view").innerHTML = list.map(p => {
+    const color = projectColor(p), pct = progressOf(p);
+    return `
+    <div class="card" data-id="${p.id}" style="--c40:${color}40">
+      <div class="topbar" style="background:${color}"></div>
+      <div class="card-top">
+        <span class="badge" style="background:${(STATUS_STYLE[p.status] || STATUS_STYLE.PAUSED).bg};color:${(STATUS_STYLE[p.status] || STATUS_STYLE.PAUSED).text}">${esc(STATUS_LABEL[p.status] || p.status || "")}</span>
+        <span class="priority" style="color:${priorityColor(p.priority)}">${esc(PRIORITY_LABEL[p.priority] || p.priority || "")}</span>
+      </div>
+      <h3>${esc(p.name)}</h3>
+      <p class="grp">${esc(p.groupName)}</p>
+      <div class="prog">
+        <div class="prog-label"><span>Progress</span><b style="color:${color}">${pct}%</b></div>
+        <div class="bar"><i style="width:${pct}%;background:${color}"></i></div>
+      </div>
+      <div class="card-foot">
+        <div class="avatars">${avatarsHtml(p)}</div>
+        <span class="due">Due ${formatDate(p.deadline)}</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("list-body").innerHTML = list.map(p => {
+    const color = projectColor(p), pct = progressOf(p);
+    const st = STATUS_STYLE[p.status] || STATUS_STYLE.PAUSED;
+    return `
+    <tr data-id="${p.id}">
+      <td><div class="pname"><div class="dot" style="background:${color}"></div><span>${esc(p.name)}</span></div></td>
+      <td><span class="grp-cell">${esc(p.groupName)}</span></td>
+      <td><span class="badge" style="background:${st.bg};color:${st.text}">${esc(STATUS_LABEL[p.status] || p.status || "")}</span></td>
+      <td><span class="priority" style="color:${priorityColor(p.priority)}">${esc(PRIORITY_LABEL[p.priority] || p.priority || "")}</span></td>
+      <td class="prog-cell"><div class="row-bar"><div class="bar"><i style="width:${pct}%;background:${color}"></i></div><span class="pct">${pct}%</span></div></td>
+      <td><span class="dl">${formatDate(p.deadline)}</span></td>
+      <td><div class="avatars">${avatarsHtml(p)}</div></td>
+    </tr>`;
+  }).join("");
 }
 
-document.getElementById("crumb-back").addEventListener("click", (e) => {
-  e.preventDefault();
-  document.getElementById("detail-view").style.display = "none";
-  document.getElementById("browse-view").style.display = "block";
-  loadProjects();
+function setView(v){
+  view = v;
+  $("btn-grid").classList.toggle("active", v === "grid");
+  $("btn-list").classList.toggle("active", v === "list");
+  $("grid-view").style.display = v === "grid" ? "grid" : "none";
+  $("list-view").style.display = v === "list" ? "block" : "none";
+}
+$("btn-grid").addEventListener("click", () => setView("grid"));
+$("btn-list").addEventListener("click", () => setView("list"));
+
+$("status-pills").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-filter]");
+  if (!btn) return;
+  filter = btn.dataset.filter;
+  document.querySelectorAll("#status-pills button").forEach(b => b.classList.toggle("active", b === btn));
+  renderBrowse();
 });
 
-document.getElementById("tab-goto-tasks").addEventListener("click", () => {
-  window.location.href = `tasks.html?projectId=${currentProject.id}`;
+$("search-input").addEventListener("input", (e) => { search = e.target.value.trim(); renderBrowse(); });
+
+$("grid-view").addEventListener("click", (e) => { const c = e.target.closest(".card"); if (c) goDetail(c.dataset.id); });
+$("list-body").addEventListener("click", (e) => { const r = e.target.closest("tr"); if (r) goDetail(r.dataset.id); });
+
+$("btn-new-project").addEventListener("click", async () => {
+  // TODO: Figma chưa có form tạo project — tạm dùng prompt() như bản demo ban đầu
+  const name = (prompt("Project name:") || "").trim();
+  if (!name) return;
+  try{
+    await api("", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description: "", groupName: "", status: "PLANNING", priority: "MEDIUM", deadline: null, teamMembers: [] }),
+    });
+    await loadProjects();
+  }catch(err){
+    console.error(err);
+    alert("Couldn't create the project.");
+  }
 });
+
+/* =====================================================================
+   ROUTING  (hash: projects.html#id=3  → detail, không có hash → danh sách)
+   ===================================================================== */
+function goDetail(id){ location.hash = "id=" + id; }
+
+function route(){
+  const m = /^#id=(\d+)$/.exec(location.hash);
+  if (m) showDetail(m[1]); else showBrowse();
+}
+window.addEventListener("hashchange", route);
+
+function showBrowse(){
+  currentProject = null;
+  document.title = "Projects · FlowTask";
+  $("detail-view").style.display = "none";
+  $("browse-view").style.display = "block";
+  loadProjects();   // luôn refresh để % tiến độ luôn mới
+}
+
+async function showDetail(id){
+  try{
+    const p = await api("/" + id);
+    if (!currentProject || currentProject.id !== p.id){ currentTab = "Overview"; commentDraft = ""; }
+    currentProject = p;
+  }catch(err){
+    console.error(err);
+    alert("Couldn't load this project.");
+    location.hash = "";
+    return;
+  }
+  document.title = currentProject.name + " · FlowTask";
+  $("browse-view").style.display = "none";
+  $("detail-view").style.display = "block";
+  renderDetail();
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   DETAIL
+   ===================================================================== */
+const TABS = ["Overview", "Tasks", "Members", "Settings"];
 
 function renderDetail(){
   const p = currentProject;
-  document.getElementById("crumb-name").textContent = p.name;
-  document.getElementById("d-name").textContent = p.name;
-  document.getElementById("d-status-badge").textContent = STATUS_LABEL[p.status] || p.status;
-  document.getElementById("d-status-badge").className = `badge ${STATUS_CLASS[p.status] || ""}`;
-  document.getElementById("d-desc").textContent = p.description || "";
-  document.getElementById("d-group").textContent = p.groupName || "—";
-  document.getElementById("d-deadline").textContent = formatDate(p.deadline);
+  const color = projectColor(p);
+  const t = taskCounts(p);
+  const pct = progressOf(p);
+  const members = membersOf(p);
+  const st = STATUS_STYLE[p.status] || STATUS_STYLE.PAUSED;
 
-  const done = p.taskDone||0, inProg = p.taskInProgress||0, review = p.taskReview||0, todo = p.taskTodo||0;
-  const total = done+inProg+review+todo;
-  document.getElementById("d-tasks").textContent = `${done}/${total}`;
-  document.getElementById("d-progress-pct").textContent = `${p.progress}%`;
-  document.getElementById("d-progress-bar").style.width = `${p.progress}%`;
+  const milestones = (p.milestones || []).map((m, i) => `
+    <div class="ms ${m.done ? "done" : ""}">
+      <button class="ms-check" type="button" data-index="${i}" aria-label="Toggle milestone">
+        ${m.done ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>` : ""}
+      </button>
+      <span class="ms-title">${esc(m.title)}</span>
+      ${m.done ? `<span class="done-tag">Done</span>` : ""}
+    </div>`).join("") || `<div class="empty-note">No milestones yet.</div>`;
 
-  // milestones
-  document.getElementById("milestone-list").innerHTML = (p.milestones || []).map((m, i) => `
-    <div class="milestone ${m.done ? "done" : ""}">
-      <div class="m-check ${m.done ? "done" : ""}" data-index="${i}">${m.done ? "✓" : ""}</div>
-      <span class="title">${m.title}</span>
-      ${m.done ? '<span class="done-label">Done</span>' : ""}
-    </div>
-  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có milestone.</p>`;
+  const comments = (p.comments || []).map(c => `
+    <div class="cm">
+      <div class="cm-av">${esc(initialsOf(c.author))}</div>
+      <div class="cm-body">
+        <div class="cm-head"><b>${esc(c.author)}</b><span>${esc(commentTime(c))}</span></div>
+        <p>${esc(c.content)}</p>
+      </div>
+    </div>`).join("");
 
-  document.querySelectorAll(".m-check").forEach(el => {
-    el.addEventListener("click", () => toggleMilestone(el.dataset.index));
-  });
-
-  // comments
-  document.getElementById("comment-list").innerHTML = (p.comments || []).map(c => `
-    <div class="comment">
-      <div class="c-head"><b>${c.author}</b><span class="when">${formatDate(c.createdAt)}</span></div>
-      <p>${c.content}</p>
-    </div>
-  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có bình luận.</p>`;
-
-  // task breakdown
   const breakdown = [
-    ["Done", done, "var(--green)"],
-    ["In Progress", inProg, "var(--accent)"],
-    ["Review", review, "var(--amber)"],
-    ["Todo", todo, "var(--text-faint)"],
-  ];
-  document.getElementById("task-breakdown").innerHTML = breakdown.map(([label,val,color]) => `
-    <div class="stat-row"><span><span class="sw" style="background:${color}"></span>${label}</span><b>${val}</b></div>
-  `).join("");
+    ["Done", t.done, "#34D399"], ["In Progress", t.inProgress, "#6366F1"],
+    ["Review", t.review, "#FBBF24"], ["Todo", t.todo, "#8B92B3"],
+  ].map(([l, v, c]) => `
+    <div class="bk"><div class="lab"><div class="sw" style="background:${c}"></div><span>${l}</span></div><b style="color:${c}">${v}</b></div>`).join("");
 
-  // team
-  document.getElementById("team-list").innerHTML = (p.teamMembers || []).map(m => `
-    <div class="team-row">
-      <div class="ini" style="width:32px;height:32px;border-radius:50%;background:${colorFor(m)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;">${m}</div>
-      <div><div class="name">${m}</div></div>
+  const team = members.map(m => `
+    <div class="tm">
+      <div class="ini" style="background:${m.color}25;color:${m.color}">${esc(m.initials)}</div>
+      <div><div class="n">${esc(m.name)}</div>${m.role ? `<div class="r">${esc(m.role)}</div>` : ""}</div>
+    </div>`).join("") || `<div style="font-size:13px;color:var(--muted)">No members yet.</div>`;
+
+  let body = "";
+  if (currentTab === "Overview"){
+    body = `
+    <div class="overview">
+      <div class="box clip">
+        <div class="ms-head"><span class="box-title">Milestones</span></div>
+        <div class="ms-list">${milestones}</div>
+        <div class="cm-wrap">
+          <span class="box-title">Comments</span>
+          ${comments}
+          <div class="cm-add">
+            <div class="cm-av">${esc(initialsOf(CURRENT_USER.name))}</div>
+            <input id="comment-input" type="text" placeholder="Add a comment…" maxlength="1000" autocomplete="off">
+          </div>
+        </div>
+      </div>
+      <div class="side-col">
+        <div class="box side-box"><div class="box-title">Task Breakdown</div>${breakdown}</div>
+        <div class="box side-box team"><div class="box-title">Team</div>${team}</div>
+      </div>
+    </div>`;
+  }else if (currentTab === "Tasks"){
+    body = `<div class="tasks-tab"><button class="btn-primary" id="btn-kanban" type="button">Open Kanban Board →</button></div>`;
+  }
+  // Members / Settings: Figma chưa thiết kế nội dung → để trống như bản gốc
+
+  $("detail-view").innerHTML = `
+    <div class="crumbs">
+      <a id="crumb-back">Projects</a><span class="sep">/</span><span class="cur">${esc(p.name)}</span>
     </div>
-  `).join("") || `<p style="color:var(--text-faint);font-size:13.5px;">Chưa có thành viên.</p>`;
+
+    <div class="head-card">
+      <div class="topbar" style="background:${color}"></div>
+      <div class="head-row">
+        <div class="head-left">
+          <div class="title-row">
+            <h1>${esc(p.name)}</h1>
+            <span class="badge" style="background:${st.bg};color:${st.text}">${esc(STATUS_LABEL[p.status] || p.status || "")}</span>
+          </div>
+          <p class="desc">${esc(p.description)}</p>
+          <div class="meta">
+            <div><div class="l">Group</div><div class="v">${esc(p.groupName || "—")}</div></div>
+            <div><div class="l">Deadline</div><div class="v">${formatDate(p.deadline, true)}</div></div>
+            <div><div class="l">Tasks</div><div class="v">${t.done}/${t.total}</div></div>
+          </div>
+        </div>
+        <div class="head-right">
+          <button class="btn-primary plain" id="btn-add-task" type="button">+ Add Task</button>
+          <div class="avatars">
+            ${members.map(m => `<div class="ini" title="${esc(m.name)}" style="background:${m.color}30;color:${m.color}">${esc(m.initials)}</div>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="head-prog">
+        <div class="row"><span>Overall progress</span><b style="color:${color}">${pct}%</b></div>
+        <div class="bar"><i style="width:${pct}%;background:linear-gradient(90deg,${color},#6366F1)"></i></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      ${TABS.map(x => `<button type="button" data-tab="${x}" class="${x === currentTab ? "active" : ""}">${x}</button>`).join("")}
+    </div>
+
+    ${body}
+  `;
+
+  // --- events ---
+  $("crumb-back").addEventListener("click", () => { location.hash = ""; });
+  $("btn-add-task").addEventListener("click", () => { window.location.href = `tasks.html?projectId=${p.id}`; });
+  document.querySelectorAll("#detail-view .tabs button").forEach(b =>
+    b.addEventListener("click", () => { currentTab = b.dataset.tab; renderDetail(); }));
+  document.querySelectorAll(".ms-check").forEach(el =>
+    el.addEventListener("click", () => toggleMilestone(el.dataset.index)));
+
+  const kanban = $("btn-kanban");
+  if (kanban) kanban.addEventListener("click", () => { window.location.href = `tasks.html?projectId=${p.id}`; });
+
+  const input = $("comment-input");
+  if (input){
+    input.value = commentDraft;
+    input.addEventListener("input", () => { commentDraft = input.value; });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) submitComment(); });
+  }
 }
 
 async function toggleMilestone(index){
-  await fetch(`${API_BASE}/${currentProject.id}/milestones/${index}`, {method:"PATCH"});
-  openDetail(currentProject.id);
+  try{
+    currentProject = await api(`/${currentProject.id}/milestones/${index}`, { method: "PATCH" });
+    renderDetail();
+  }catch(err){ console.error(err); alert("Couldn't update the milestone."); }
 }
 
-document.getElementById("btn-add-comment").addEventListener("click", async () => {
-  const author = document.getElementById("comment-author").value.trim() || "Ẩn danh";
-  const content = document.getElementById("comment-input").value.trim();
-  if(!content) return;
-  await fetch(`${API_BASE}/${currentProject.id}/comments`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({author, content})
-  });
-  document.getElementById("comment-input").value = "";
-  openDetail(currentProject.id);
-});
+async function submitComment(){
+  const content = commentDraft.trim();
+  if (!content) return;
+  try{
+    currentProject = await api(`/${currentProject.id}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ author: CURRENT_USER.name, content }),
+    });
+    commentDraft = "";
+    renderDetail();
+    const el = $("comment-input"); if (el) el.focus();
+  }catch(err){ console.error(err); alert("Couldn't post the comment."); }
+}
 
-document.getElementById("btn-add-task").addEventListener("click", () => {
-  window.location.href = `tasks.html?projectId=${currentProject.id}&new=1`;
-});
-
-// ---------- Init ----------
-loadProjects();
+route();
 </script>
-
 </body>
 </html>

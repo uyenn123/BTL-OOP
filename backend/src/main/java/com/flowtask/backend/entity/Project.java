@@ -1,6 +1,10 @@
 package com.flowtask.backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,26 +30,33 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectPriority priority;
 
-    private int progress; // 0 - 100
+    // Màu đại diện của project (hex, VD "#6366F1") - dùng cho thanh màu trên card, progress bar, avatar (theo Figma)
+    @Column(length = 7)
+    private String color;
+
+    // 0 - 100. Khi project đã có task thì được tính tự động = done / tổng task (xem ProjectService)
+    private int progress;
 
     private LocalDate deadline;
 
-    // Danh sách viết tắt tên thành viên hiển thị avatar (VD: "NK", "LT", "HN")
+    // Thành viên hiển thị avatar + tên + vai trò (VD: initials "NK", name "Nguyen Khoa", role "Lead")
     @ElementCollection
+    @Fetch(FetchMode.SUBSELECT)
     @CollectionTable(name = "project_team_members", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "member_initials")
-    private List<String> teamMembers = new ArrayList<>();
+    private List<TeamMember> teamMembers = new ArrayList<>();
 
     @ElementCollection
+    @Fetch(FetchMode.SUBSELECT)
     @CollectionTable(name = "project_milestones", joinColumns = @JoinColumn(name = "project_id"))
     private List<Milestone> milestones = new ArrayList<>();
 
     @ElementCollection
+    @Fetch(FetchMode.SUBSELECT)
     @CollectionTable(name = "project_comments", joinColumns = @JoinColumn(name = "project_id"))
     private List<Comment> comments = new ArrayList<>();
 
-    // Task breakdown tạm thời (đến khi Task entity của nhóm hoàn thiện
-    // thì thay bằng query đếm thật từ bảng tasks theo projectId)
+    // Task breakdown tạm thời (đến khi Task entity của nhóm hoàn thiện thì
+    // thay bằng query đếm từ bảng tasks theo projectId)
     private int taskDone;
     private int taskInProgress;
     private int taskReview;
@@ -104,6 +115,14 @@ public class Project {
         this.priority = priority;
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     public int getProgress() {
         return progress;
     }
@@ -120,11 +139,11 @@ public class Project {
         this.deadline = deadline;
     }
 
-    public List<String> getTeamMembers() {
+    public List<TeamMember> getTeamMembers() {
         return teamMembers;
     }
 
-    public void setTeamMembers(List<String> teamMembers) {
+    public void setTeamMembers(List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
     }
 
@@ -189,6 +208,52 @@ public class Project {
     // ===== Embeddable phụ =====
 
     @Embeddable
+    public static class TeamMember {
+        // Giữ nguyên tên cột cũ để dữ liệu "member_initials" đã có trong DB vẫn đọc được
+        @Column(name = "member_initials")
+        private String initials;
+
+        @Column(name = "member_name")
+        private String name;
+
+        @Column(name = "member_role")
+        private String role;
+
+        public TeamMember() {
+        }
+
+        public TeamMember(String initials, String name, String role) {
+            this.initials = initials;
+            this.name = name;
+            this.role = role;
+        }
+
+        public String getInitials() {
+            return initials;
+        }
+
+        public void setInitials(String initials) {
+            this.initials = initials;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
+    }
+
+    @Embeddable
     public static class Milestone {
         private String title;
         private boolean done;
@@ -225,15 +290,21 @@ public class Project {
         @Column(length = 1000)
         private String content;
 
+        // Chỉ có ngày - giữ lại cho dữ liệu cũ
         private LocalDate createdAt;
+
+        // Thời điểm đăng chính xác - để hiển thị "2h ago" như Figma (null với bình luận cũ)
+        @Column(name = "posted_at")
+        private Instant postedAt;
 
         public Comment() {
         }
 
-        public Comment(String author, String content, LocalDate createdAt) {
+        public Comment(String author, String content) {
             this.author = author;
             this.content = content;
-            this.createdAt = createdAt;
+            this.createdAt = LocalDate.now();
+            this.postedAt = Instant.now();
         }
 
         public String getAuthor() {
@@ -258,6 +329,14 @@ public class Project {
 
         public void setCreatedAt(LocalDate createdAt) {
             this.createdAt = createdAt;
+        }
+
+        public Instant getPostedAt() {
+            return postedAt;
+        }
+
+        public void setPostedAt(Instant postedAt) {
+            this.postedAt = postedAt;
         }
     }
 }

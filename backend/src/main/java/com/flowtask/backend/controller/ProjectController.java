@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
-@CrossOrigin(origins = "*") 
+@CrossOrigin(origins = "*")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -25,14 +25,7 @@ public class ProjectController {
     public List<Project> getProjects(
             @RequestParam(required = false) Project.ProjectStatus status,
             @RequestParam(required = false) String search) {
-
-        if (status != null) {
-            return projectService.getProjectsByStatus(status);
-        }
-        if (search != null && !search.isBlank()) {
-            return projectService.searchProjects(search);
-        }
-        return projectService.getAllProjects();
+        return projectService.getProjects(status, search);
     }
 
     @GetMapping("/{id}")
@@ -73,6 +66,7 @@ public class ProjectController {
 
     // ---- Comments ----
 
+    // body: { "author": "Nguyen Khoa", "content": "..." }
     @PostMapping("/{id}/comments")
     public Project addComment(@PathVariable Long id, @RequestBody Map<String, String> body) {
         return projectService.addComment(id, body.get("author"), body.get("content"));

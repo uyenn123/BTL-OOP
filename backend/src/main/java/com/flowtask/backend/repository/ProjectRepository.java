@@ -10,4 +10,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByStatus(Project.ProjectStatus status);
 
     List<Project> findByNameContainingIgnoreCase(String keyword);
+
+    List<Project> findByStatusAndNameContainingIgnoreCase(Project.ProjectStatus status, String keyword);
 }
