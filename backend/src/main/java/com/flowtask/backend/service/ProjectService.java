@@ -32,15 +32,17 @@ public class ProjectService {
 
     // Lọc theo status và/hoặc từ khóa tên (trước đây khi gửi cả hai thì search bị bỏ qua)
     public List<Project> getProjects(Project.ProjectStatus status, String search) {
-        boolean hasSearch = search != null && !search.isBlank();
+        String keyword = search == null ? "" : search.trim();
+        boolean hasSearch = !keyword.isEmpty();
+
         if (status != null && hasSearch) {
-            return projectRepository.findByStatusAndNameContainingIgnoreCase(status, search.trim());
+            return projectRepository.findByStatusAndNameContainingIgnoreCase(status, keyword);
         }
         if (status != null) {
             return projectRepository.findByStatus(status);
         }
         if (hasSearch) {
-            return projectRepository.findByNameContainingIgnoreCase(search.trim());
+            return projectRepository.findByNameContainingIgnoreCase(keyword);
         }
         return projectRepository.findAll();
     }
@@ -56,7 +58,11 @@ public class ProjectService {
     }
 
     public List<Project> searchProjects(String keyword) {
-        return projectRepository.findByNameContainingIgnoreCase(keyword);
+        String cleanKeyword = keyword == null ? "" : keyword.trim();
+        if (cleanKeyword.isEmpty()) {
+            return projectRepository.findAll();
+        }
+        return projectRepository.findByNameContainingIgnoreCase(cleanKeyword);
     }
 
     @Transactional
