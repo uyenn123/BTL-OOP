@@ -1,28 +1,31 @@
 package com.flowtask.backend.controller;
 
+import com.flowtask.backend.dto.Request.UpdateProfile;
+import com.flowtask.backend.dto.Response.UserView;
 import com.flowtask.backend.entity.User;
 import com.flowtask.backend.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @GetMapping("/me")
+    public UserView me(@AuthenticationPrincipal User user) {
+        return userService.getMe(user);
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    @PutMapping("/me")
+    public UserView update(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdateProfile request
+    ) {
+        return userService.update(user, request);
     }
 }

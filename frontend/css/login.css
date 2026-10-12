@@ -1,0 +1,233 @@
+
+:root {
+    --bg: #0b0d16;
+    --card: #13162a;
+    --text: #f0f2ff;
+    --muted: #8b92b3;
+    --primary: #7065f5;
+    --lavender: #a78bfa;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.15), transparent 55%),
+        var(--bg);
+    color: var(--text);
+    font-family: Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    padding: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 22px;
+    background: rgba(19, 22, 42, 0.92);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    margin-bottom: 38px;
+    font: 800 25px "Plus Jakarta Sans", sans-serif;
+    letter-spacing: -0.8px;
+}
+
+.brand-icon {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 43px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #9278ff, #5145e5);
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.3);
+    color: white;
+    font-size: 26px;
+}
+
+.login-heading {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.login-heading h1 {
+    margin: 0 0 10px;
+    font: 800 29px "Plus Jakarta Sans", sans-serif;
+    letter-spacing: -1px;
+}
+
+.login-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 21px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 9px;
+    color: #dce1fa;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    height: 49px;
+    padding: 0 14px;
+    border: 1px solid rgba(133, 145, 204, 0.25);
+    border-radius: 11px;
+    outline: none;
+    background: #0f1224;
+    color: var(--text);
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+    color: #6f7899;
+}
+
+.form-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(112, 101, 245, 0.12);
+}
+
+.login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 49px;
+    margin-top: 3px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(110deg, #8b70ff, #605cf1 65%, #4785ff);
+    box-shadow: 0 8px 24px rgba(91, 92, 240, 0.23);
+    color: white;
+    font: 700 14px "Plus Jakarta Sans", sans-serif;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.login-btn span {
+    font-size: 19px;
+}
+
+.login-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error-message {
+    margin: 0;
+    padding: 11px 13px;
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    border-radius: 9px;
+    background: rgba(248, 113, 113, 0.08);
+    color: #fca5a5;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.error-message[hidden] {
+    display: none;
+}
+
+.register-link {
+    margin: 25px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.register-link a {
+    margin-left: 4px;
+    color: #a59bff;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    color: #c4baff;
+}
+
+.login-footer {
+    margin: 36px 0 0;
+    color: #68718f;
+    font-size: 10px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        padding: 20px 14px;
+    }
+
+    .login-card {
+        padding: 30px 23px;
+        border-radius: 18px;
+    }
+
+    .brand {
+        margin-bottom: 32px;
+    }
+
+    .login-heading h1 {
+        font-size: 26px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

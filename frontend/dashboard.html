@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | FlowTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+    <div class="dashboard-page">
+    <header class="dashboard-header">
+        <div>
+            <p id="current-date" class="muted">Loading date...</p>
+            <h1>Xin chào, <span id="user-name">there</span></h1>
+        </div>
+
+        <button class="primary-btn" id="new-task-btn">
+            <span>＋</span> New Task
+        </button>
+    </header>
+
+    <section class="stats-grid" id="stats-grid"></section>
+
+    <section class="dashboard-main">
+        <div class="panel tasks-panel">
+            <div class="panel-header">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="all">All Tasks</button>
+                    <button class="tab-btn" data-tab="mine">Mine</button>
+                </div>
+
+                <a href="tasks.html" class="view-all">View all →</a>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Group</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Due</th>
+                    </tr>
+                    </thead>
+                    <tbody id="task-table-body">
+                    <tr>
+                        <td colspan="5" class="empty-message">Loading tasks...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <aside class="panel activity-panel">
+            <div class="panel-header">
+                <h2>Activity</h2>
+            </div>
+
+            <div id="activity-list"></div>
+
+            <div class="sprint-card">
+                <div class="sprint-heading">
+                    <span>Sprint 7</span>
+                    <span class="sprint-percent">68%</span>
+                </div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 68%"></div>
+                </div>
+
+                <div class="sprint-stats">
+                    <div>
+                        <strong>21</strong>
+                        <span>Done</span>
+                    </div>
+                    <div>
+                        <strong>5</strong>
+                        <span>Left</span>
+                    </div>
+                    <div>
+                        <strong>3d</strong>
+                        <span>Remain</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <section class="quick-access-section">
+        <h2>Quick Access</h2>
+        <div class="quick-projects-grid" id="quick-projects">
+            <p class="muted">Loading projects...</p>
+        </div>
+    </section>
+
+    <p id="dashboard-error" class="error-message" role="alert"></p>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/sidebar.js"></script>
+</body>
+</html>

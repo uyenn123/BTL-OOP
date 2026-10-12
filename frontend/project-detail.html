@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Project Detail | FlowTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/project-detail.css">
+
+    <script src="js/api.js"></script>
+    <script src="js/project-detail.js" defer></script>
+</head>
+
+<body>
+<div class="app-layout">
+
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Nội dung chính -->
+    <div class="dashboard-page">
+        <main class="project-page">
+
+            <div id="error-message"
+                 class="error-message"
+                 role="alert"
+                 hidden></div>
+
+            <div class="breadcrumb">
+                <a href="projects.html">Projects</a>
+                <span>/</span>
+                <span id="breadcrumb-name">Project Detail</span>
+            </div>
+
+            <section class="project-header card">
+                <div id="project-color-bar" class="project-color-bar"></div>
+
+                <div class="project-header-content">
+                    <div class="project-main-info">
+                        <div class="project-title-row">
+                            <h1 id="project-name">Project Name</h1>
+                            <span id="project-status" class="status-badge">
+                                Active
+                            </span>
+                        </div>
+
+                        <p id="project-description" class="project-description">
+                            Mô tả dự án
+                        </p>
+
+                        <div class="project-meta">
+                            <div>
+                                <span class="meta-label">GROUP</span>
+                                <strong id="project-group">Chưa có nhóm</strong>
+                            </div>
+
+                            <div>
+                                <span class="meta-label">DEADLINE</span>
+                                <strong id="project-deadline">Chưa có</strong>
+                            </div>
+
+                            <div>
+                                <span class="meta-label">TASKS</span>
+                                <strong id="project-task-count">0/0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-header-actions">
+                        <button id="add-task-btn" class="primary-btn">
+                            + Thêm nhiệm vụ
+                        </button>
+
+                        <div id="member-avatars" class="member-avatars"></div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span>Tiến độ dự án</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+
+                    <div class="progress-track">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+            </section>
+
+            <nav class="project-tabs">
+                <button class="project-tab active" data-tab="Overview">
+                    Tổng quan
+                </button>
+
+                <button class="project-tab" data-tab="Tasks">
+                    Nhiệm vụ
+                </button>
+
+                <button class="project-tab" data-tab="Members">
+                    Thành viên
+                </button>
+
+                <button class="project-tab" data-tab="Settings">
+                    Cài đặt
+                </button>
+            </nav>
+
+            <!-- Overview -->
+            <section id="overview-panel" class="tab-panel">
+                <div class="overview-grid">
+
+                    <div class="card main-card">
+                        <div class="card-heading">Milestones</div>
+
+                        <div id="milestone-list" class="milestone-list"></div>
+
+                        <div class="comments-section">
+                            <h2 class="card-heading">Bình luận</h2>
+
+                            <div id="comment-list"></div>
+
+                            <form id="comment-form" class="comment-form">
+                                <div class="current-avatar">ME</div>
+
+                                <input
+                                        id="comment-input"
+                                        type="text"
+                                        placeholder="Viết bình luận..."
+                                        autocomplete="off"
+                                        required
+                                >
+
+                                <button type="submit" class="primary-btn">
+                                    Gửi
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <aside class="overview-sidebar">
+                        <div class="card sidebar-card">
+                            <h2 class="card-heading">Task Breakdown</h2>
+                            <div id="task-breakdown"></div>
+                        </div>
+
+                        <div class="card sidebar-card">
+                            <h2 class="card-heading">Team</h2>
+                            <div id="team-list"></div>
+                        </div>
+                    </aside>
+
+                </div>
+            </section>
+
+            <!-- Tasks -->
+            <section id="tasks-panel" class="tab-panel" hidden>
+                <button id="open-kanban-btn" class="primary-btn">
+                    Xem bảng nhiệm vụ →
+                </button>
+            </section>
+
+            <!-- Members -->
+            <section id="members-panel" class="tab-panel" hidden></section>
+
+            <!-- Settings -->
+            <section id="settings-panel" class="tab-panel" hidden></section>
+
+        </main>
+    </div>
+</div>
+<script src="js/sidebar.js"></script>
+</body>
+</html>

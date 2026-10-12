@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board - FlowTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/tasks.css">
+</head>
+<body>
+
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="tasks-page">
+        <header class="tasks-header">
+            <div class="header-top">
+                <div>
+                    <h1>Nhiệm vụ</h1>
+                    <p class="subtitle">
+                        <span id="total-tasks">0</span> nhiệm vụ của bạn
+                    </p>
+                    <p id="error-message" class="error-message" role="alert" hidden></p>
+                </div>
+
+                <div class="header-actions">
+
+                    <button id="open-modal-btn" class="primary-btn">
+                        <span>＋</span> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row" id="stats-row"></div>
+        </header>
+
+        <section class="kanban-board" id="kanban-board">
+            <div class="loading-message">Loading tasks...</div>
+        </section>
+    </main>
+</div>
+
+<div class="modal-overlay" id="task-modal" hidden>
+    <section class="task-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-header">
+            <h2 id="modal-title">Create Task</h2>
+            <button type="button" id="close-modal-btn" class="icon-btn" aria-label="Close">×</button>
+        </div>
+
+        <form id="task-form">
+            <div class="form-group">
+                <label for="task-title">Title</label>
+                <input
+                        id="task-title"
+                        name="title"
+                        type="text"
+                        placeholder="e.g. Implement login endpoint"
+                        required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="task-description">Description</label>
+                <textarea
+                        id="task-description"
+                        name="description"
+                        placeholder="What needs to be done?"
+                        rows="3"
+                ></textarea>
+            </div>
+
+
+            <div class="form-group">
+                <label for="task-group">Group *</label>
+                <select id="task-group" name="groupId" required>
+                    <option value="">Chọn nhóm</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="task-project">Project *</label>
+                <select id="task-project" name="projectId" required disabled>
+                    <option value="">Chọn nhóm trước</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="task-assignee">Assignee</label>
+                <select id="task-assignee" name="assigneeId" disabled>
+                    <option value="">Chọn dự án trước</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="task-priority">Priority *</label>
+                <select id="task-priority" name="priority" required>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM" selected>Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="task-due-date">Due date</label>
+                <input
+                        type="date"
+                        id="task-due-date"
+                        name="dueDate"
+                >
+            </div>
+
+            <p id="modal-error" class="error-message" role="alert" hidden></p>
+
+            <div class="modal-actions">
+                <button type="button" id="cancel-modal-btn" class="secondary-btn">
+                    Cancel
+                </button>
+                <button type="submit" id="create-task-btn" class="primary-btn">
+                    Create Task
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/sidebar.js"></script>
+
+</body>
+</html>

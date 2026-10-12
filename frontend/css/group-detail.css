@@ -1,0 +1,373 @@
+
+:root {
+    --bg: #0B0D16;
+    --card: #13162A;
+    --text: #F0F2FF;
+    --muted: #8B92B3;
+    --primary: #6366F1;
+    --border: rgba(255, 255, 255, 0.06);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, sans-serif;
+}
+
+button, a {
+    font: inherit;
+}
+
+.page {
+    min-height: 100vh;
+    padding: 32px 36px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 13px;
+}
+
+.breadcrumb a,
+.breadcrumb span:first-of-type {
+    color: var(--muted);
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.breadcrumb a:hover {
+    color: var(--text);
+}
+
+#breadcrumb-name {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.message {
+    padding: 20px 0;
+    color: var(--muted);
+}
+
+.message.error {
+    color: #F87171;
+}
+
+.group-header {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+    padding: 28px 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.header-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+}
+
+.header-glow {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.group-info {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.group-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+}
+
+#group-name {
+    margin: 0 0 4px;
+    font: 700 22px "Plus Jakarta Sans", sans-serif;
+}
+
+#group-description {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.stats {
+    position: relative;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.stat-value {
+    margin-bottom: 4px;
+    font: 700 20px "Plus Jakarta Sans", sans-serif;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    width: fit-content;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.tab-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
+    cursor: pointer;
+    transition: background 150ms, color 150ms;
+}
+
+.tab-btn:hover {
+    color: var(--text);
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.member-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 150ms;
+}
+
+.member-card:hover,
+.project-card:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.status-dot {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--card);
+    border-radius: 50%;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    margin-bottom: 4px;
+    overflow-wrap: anywhere;
+    font: 600 14px "Plus Jakarta Sans", sans-serif;
+}
+
+.member-role {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.member-status {
+    font: 600 12px "Plus Jakarta Sans", sans-serif;
+    text-align: right;
+}
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.project-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 150ms;
+}
+
+.project-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
+.project-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.project-name {
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+    font: 600 14px "Plus Jakarta Sans", sans-serif;
+}
+
+.progress-track {
+    height: 5px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 250ms;
+}
+
+.project-count {
+    flex-shrink: 0;
+    color: var(--muted);
+    font: 400 12px "JetBrains Mono", monospace;
+}
+
+.empty-state {
+    padding: 28px;
+    color: var(--muted);
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+@media (max-width: 760px) {
+    .page {
+        padding: 24px 18px;
+    }
+
+    .group-header {
+        padding: 24px 20px;
+    }
+
+    .members-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats {
+        gap: 24px;
+    }
+}
+
+@media (max-width: 420px) {
+    .member-card {
+        gap: 12px;
+        padding: 16px 12px;
+    }
+
+    .member-status {
+        font-size: 11px;
+    }
+
+    .project-card {
+        gap: 12px;
+        padding: 16px 14px;
+    }
+}
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+#sidebar-container {
+    flex-shrink: 0;
+}
+
+.dashboard-page {
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    overflow-y: auto;
+}
+
+.page {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 650px) {
+    .page {
+        padding: 20px 16px;
+    }
+}

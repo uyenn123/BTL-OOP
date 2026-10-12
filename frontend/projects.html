@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | FlowTask</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/projects.css">
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+<main class="projects-page">
+    <header class="projects-header">
+        <div>
+            <h1>Projects</h1>
+            <p id="project-count">Loading projects...</p>
+            <p id="error-message" class="error-message" role="alert" hidden></p>
+        </div>
+
+        <div class="header-actions">
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="grid" title="Grid view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </button>
+                <button class="view-btn" data-view="list" title="List view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <line x1="3" y1="6" x2="3.01" y2="6"/>
+                        <line x1="3" y1="12" x2="3.01" y2="12"/>
+                        <line x1="3" y1="18" x2="3.01" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <label class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input id="search-input" type="search" placeholder="Search...">
+            </label>
+
+            <button id="new-project-btn" class="primary-btn">
+                <span>＋</span> New Project
+            </button>
+        </div>
+    </header>
+
+    <nav id="project-filters" class="project-filters">
+        <button class="filter-btn active" data-filter="All">All</button>
+        <button class="filter-btn" data-filter="ACTIVE">Active</button>
+        <button class="filter-btn" data-filter="REVIEW">Review</button>
+        <button class="filter-btn" data-filter="PLANNING">Planning</button>
+        <button class="filter-btn" data-filter="PAUSED">Paused</button>
+    </nav>
+
+    <section id="projects-container" class="projects-grid" aria-live="polite"></section>
+
+    <div id="empty-state" class="empty-state" hidden>
+        <h3>No projects found</h3>
+        <p>Try changing the search keyword or status filter.</p>
+    </div>
+</main>
+
+<div id="project-modal" class="modal-overlay" hidden>
+    <form id="project-form" class="project-modal">
+        <div class="modal-header">
+            <h2>Create Project</h2>
+            <button type="button" id="close-modal-btn" class="icon-btn" aria-label="Close">×</button>
+        </div>
+
+        <label class="form-field">
+            <span>Project name</span>
+            <input id="form-name" name="name" type="text"
+                   placeholder="Enter project name" required maxlength="150">
+        </label>
+
+        <label class="form-field">
+            <span>Description</span>
+            <textarea id="form-description" name="description"
+                      placeholder="Describe your project" rows="3"></textarea>
+        </label>
+
+        <label class="form-field">
+            <span>Group</span>
+            <select id="form-group" name="groupId" required>
+                <option value="">Select a group</option>
+            </select>
+        </label>
+
+        <div class="form-row">
+            <label class="form-field">
+                <span>Priority</span>
+                <select id="form-priority" name="priority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM" selected>Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                <span>Deadline</span>
+                <input id="form-deadline" name="deadline" type="date">
+            </label>
+        </div>
+
+        <p id="modal-error" class="error-message" role="alert" hidden></p>
+
+        <div class="modal-actions">
+            <button type="button" id="cancel-modal-btn" class="secondary-btn">
+                Cancel
+            </button>
+            <button type="submit" id="create-project-btn" class="primary-btn">
+                Create Project
+            </button>
+        </div>
+    </form>
+</div>
+
+    <script src="js/api.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/sidebar.js"></script>
+</div>
+</body>
+</html>

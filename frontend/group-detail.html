@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Detail | FlowTask</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/group-detail.css">
+    <script src="js/api.js"></script>
+    <script src="js/group-detail.js" defer></script>
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <div class="dashboard-page">
+        <main class="page">
+    <div class="breadcrumb">
+        <a href="groups.html">Groups</a>
+        <span>/</span>
+        <span id="breadcrumb-name">Group Detail</span>
+    </div>
+
+    <div id="loading" class="message">Loading group...</div>
+
+    <div id="error-message" class="message error hidden"></div>
+
+    <section id="group-content" class="hidden">
+        <header class="group-header">
+            <div id="header-line" class="header-line"></div>
+            <div id="header-glow" class="header-glow"></div>
+
+            <div class="group-info">
+                <div id="group-icon" class="group-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+
+                <div>
+                    <h1 id="group-name">Group Name</h1>
+                    <p id="group-description"></p>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div id="member-count" class="stat-value">0</div>
+                    <div class="stat-label">Members</div>
+                </div>
+                <div class="stat">
+                    <div id="project-count" class="stat-value">0</div>
+                    <div class="stat-label">Projects</div>
+                </div>
+                <div class="stat">
+                    <div id="active-task-count" class="stat-value">0</div>
+                    <div class="stat-label">Active Tasks</div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="members">Members</button>
+            <button class="tab-btn" data-tab="projects">Projects</button>
+        </nav>
+
+        <section id="members-panel" class="members-grid"></section>
+        <section id="projects-panel" class="projects-list hidden"></section>
+    </section>
+        </main>
+    </div>
+</div>
+<script src="js/sidebar.js"></script>
+</body>
+</html>

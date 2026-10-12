@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Groups | FlowTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/groups.css">
+</head>
+
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="page">
+        <header class="page-header">
+            <div class="heading">
+                <h1>Groups</h1>
+                <p id="group-summary">Loading groups...</p>
+                <p id="error-message"
+                   class="error-message hidden"
+                   role="alert"></p>
+            </div>
+
+            <div class="header-actions">
+                <label class="search-box">
+                    <svg width="14" height="14"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21"
+                              x2="16.65" y2="16.65"></line>
+                    </svg>
+
+                    <input id="search-input"
+                           type="search"
+                           placeholder="Search groups..."
+                           autocomplete="off">
+                </label>
+
+                <button id="new-group-btn"
+                        class="primary-btn"
+                        type="button">
+                    <svg width="14" height="14"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2.5">
+                        <line x1="12" y1="5"
+                              x2="12" y2="19"></line>
+                        <line x1="5" y1="12"
+                              x2="19" y2="12"></line>
+                    </svg>
+                    New Group
+                </button>
+            </div>
+        </header>
+
+        <div id="loading" class="state-message">
+            Loading groups...
+        </div>
+
+        <section id="groups-grid" class="groups-grid"></section>
+
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">◎</div>
+            <h3 id="empty-title">No groups found</h3>
+            <p id="empty-description">
+                Try another search keyword.
+            </p>
+        </div>
+    </main>
+</div>
+
+<div id="group-modal" class="modal-overlay hidden">
+    <section class="modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="modal-title">
+
+        <div class="modal-header">
+            <div>
+                <h2 id="modal-title">Create Group</h2>
+                <p>Create a team and start collaborating.</p>
+            </div>
+
+            <button id="close-modal-btn"
+                    class="icon-btn"
+                    type="button"
+                    aria-label="Close">×</button>
+        </div>
+
+        <form id="group-form">
+            <div class="form-field">
+                <label for="group-name-input">Group name</label>
+                <input id="group-name-input"
+                       name="name"
+                       placeholder="e.g. Engineering"
+                       maxlength="100"
+                       required>
+            </div>
+
+            <div class="form-field">
+                <label for="group-description-input">
+                    Description
+                </label>
+                <textarea id="group-description-input"
+                          name="description"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="What does this team work on?"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label>Group color</label>
+
+                <div class="color-options">
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#6366F1" checked>
+                        <span style="--swatch:#6366F1"></span>
+                    </label>
+
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#34D399">
+                        <span style="--swatch:#34D399"></span>
+                    </label>
+
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#F59E0B">
+                        <span style="--swatch:#F59E0B"></span>
+                    </label>
+
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#F472B6">
+                        <span style="--swatch:#F472B6"></span>
+                    </label>
+
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#22D3EE">
+                        <span style="--swatch:#22D3EE"></span>
+                    </label>
+
+                    <label class="color-option">
+                        <input type="radio" name="color"
+                               value="#A78BFA">
+                        <span style="--swatch:#A78BFA"></span>
+                    </label>
+                </div>
+            </div>
+
+            <p id="modal-error"
+               class="error-message hidden"
+               role="alert"></p>
+
+            <div class="modal-actions">
+                <button id="cancel-modal-btn"
+                        class="secondary-btn"
+                        type="button">
+                    Cancel
+                </button>
+
+                <button id="create-group-btn"
+                        class="primary-btn"
+                        type="submit">
+                    Create Group
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/groups.js"></script>
+<script src="js/sidebar.js"></script>
+</body>
+</html>

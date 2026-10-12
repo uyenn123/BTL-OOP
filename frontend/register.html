@@ -2,9 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create account - FlowTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/register.css">
 </head>
 <body>
+<main class="register-page">
+    <a href="login.html" class="logo">
+        <div class="logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+        </div>
+        <span>FlowTask</span>
+    </a>
 
+    <section class="register-card">
+        <h1>Create your account</h1>
+        <p class="subtitle">
+            Join thousands of teams using FlowTask
+        </p>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="name">Full name</label>
+                <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        placeholder="Nguyen Minh Khoa"
+                        autocomplete="name"
+                        required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="At least 8 characters"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                >
+                <small class="password-hint">
+                    Use at least 8 characters, including a number and a special character.
+                </small>
+            </div>
+
+            <div class="form-message" id="form-message" role="status" hidden></div>
+
+            <div class="form-actions">
+                <button type="submit" id="submit-btn" class="submit-btn">
+                    Create account
+                </button>
+            </div>
+        </form>
+
+        <p class="signin-text">
+            Already have an account?
+            <a href="login.html">Sign in</a>
+        </p>
+    </section>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/register.js"></script>
 </body>
 </html>

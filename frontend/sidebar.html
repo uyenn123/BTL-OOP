@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowTask Sidebar</title>
+
+    <link rel="stylesheet" href="css/sidebar.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <a href="dashboard.html" class="brand">
+        <span class="brand-icon">ϟ</span>
+        <span>FlowTask</span>
+    </a>
+
+    <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item" data-page="dashboard">
+            <span>▦</span>
+            Dashboard
+        </a>
+
+        <a href="groups.html" class="nav-item" data-page="groups">
+            <span>♧</span>
+            Groups
+        </a>
+
+        <a href="projects.html" class="nav-item" data-page="projects">
+            <span>◇</span>
+            Projects
+        </a>
+
+        <a href="tasks.html" class="nav-item" data-page="tasks">
+            <span>☑</span>
+            Tasks
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <button type="button" id="notification-btn" class="nav-item">
+            <span>♧</span>
+            Notifications
+            <span id="notification-count"></span>
+        </button>
+
+        <a href="pages/profile.html" class="user-profile">
+            <span id="user-avatar" class="avatar">FT</span>
+
+            <span class="user-info">
+                    <strong id="user-name">FlowTask User</strong>
+                    <small id="user-email"></small>
+                </span>
+        </a>
+
+        <button type="button" id="logout-btn" class="logout-btn">
+            Sign out
+        </button>
+    </div>
+
+    <div id="notification-panel" class="notification-panel" hidden>
+        <div class="notification-header">
+            <strong>Notifications</strong>
+            <button type="button" id="mark-all-read">
+                Mark all read
+            </button>
+        </div>
+
+        <div id="notification-list"></div>
+    </div>
+</aside>
+
+<script src="js/sidebar.js"></script>
+</body>
+</html>
