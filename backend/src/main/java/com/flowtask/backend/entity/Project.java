@@ -1,18 +1,14 @@
 package com.flowtask.backend.entity;
-
 import com.flowtask.backend.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
-
 @Getter
 @Setter
 @Entity
 @Table(name = "projects")
 public class Project extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;

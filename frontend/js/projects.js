@@ -15,7 +15,6 @@ const priorityColor = {
 let projects = [];
 let groups = [];
 let view = "grid";
-let filter = "All";
 
 const container = document.getElementById("projects-container");
 const searchInput = document.getElementById("search-input");
@@ -90,17 +89,9 @@ function setModalError(message) {
 function getFilteredProjects() {
     const keyword = searchInput.value.trim().toLowerCase();
 
-    return projects.filter(project => {
-        const status = String(project.status || "").toUpperCase();
-
-        const matchesStatus =
-            filter === "All" || status === filter;
-
-        const matchesSearch =
-            String(project.name || "").toLowerCase().includes(keyword);
-
-        return matchesStatus && matchesSearch;
-    });
+    return projects.filter(project =>
+        String(project.name || "").toLowerCase().includes(keyword)
+    );
 }
 
 function renderProjects() {
@@ -373,15 +364,6 @@ async function createProject(event) {
             groupSelect.value = String(groups[0].id);
         }
 
-        filter = "All";
-
-        document.querySelectorAll(".filter-btn").forEach(button => {
-            button.classList.toggle(
-                "active",
-                button.dataset.filter === filter
-            );
-        });
-
         closeModal();
         setError("");
         renderProjects();
@@ -400,18 +382,6 @@ async function createProject(event) {
 document.querySelectorAll(".view-btn").forEach(button => {
     button.addEventListener("click", () => {
         view = button.dataset.view;
-        renderProjects();
-    });
-});
-
-document.querySelectorAll(".filter-btn").forEach(button => {
-    button.addEventListener("click", () => {
-        filter = button.dataset.filter;
-
-        document.querySelectorAll(".filter-btn").forEach(item => {
-            item.classList.toggle("active", item === button);
-        });
-
         renderProjects();
     });
 });

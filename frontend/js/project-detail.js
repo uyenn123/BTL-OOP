@@ -98,75 +98,29 @@ function renderProject() {
     $("progress-bar").style.width = `${progress}%`;
 
     renderTaskBreakdown();
+    renderOverviewTasks();
     renderTasks();
-}
-
-function renderTaskBreakdown() {
-    const container = $("task-breakdown");
-    if (!container) return;
-
-    const statuses = [
-        { key: "TODO", label: "To do", color: "#94a3b8" },
-        { key: "IN_PROGRESS", label: "In progress", color: "#818cf8" },
-        { key: "DONE", label: "Done", color: "#34d399" }
-    ];
-
-    container.innerHTML = statuses.map(item => {
-        const count = projectTasks.filter(
-            task => task.status === item.key
-        ).length;
-
-        return `
-            <div class="breakdown-row">
-                <div class="breakdown-label">
-                    <span class="breakdown-dot"
-                          style="background:${item.color}"></span>
-                    ${item.label}
-                </div>
-                <span class="breakdown-value">${count}</span>
-            </div>
-        `;
-    }).join("");
+    renderAnnouncements();
 }
 
 function renderTasks() {
-    const panel = $("tasks-panel");
-    if (!panel) return;
-
-    const button = $("open-kanban-btn");
-
-    let list = $("project-task-list");
-
-    if (!list) {
-        list = document.createElement("div");
-        list.id = "project-task-list";
-        list.className = "project-task-list";
-
-        if (button) {
-            button.insertAdjacentElement("afterend", list);
-        } else {
-            panel.appendChild(list);
-        }
-    }
+    const list = $("project-task-list");
+    if (!list) return;
 
     if (!projectTasks.length) {
         list.innerHTML = `
-            <div class="card" style="padding:20px;margin-top:16px">
-                Dự án chưa có task nào.
-            </div>
+            <p class="empty-text">Dự án chưa có nhiệm vụ nào.</p>
         `;
         return;
     }
 
     list.innerHTML = projectTasks.map(task => `
-        <article class="card"
-                 style="padding:16px;margin-top:12px">
+        <article class="card" style="padding:16px;margin-top:12px">
             <div style="display:flex;justify-content:space-between;
                         align-items:flex-start;gap:12px;flex-wrap:wrap">
                 <div style="min-width:0;flex:1">
                     <strong>${escapeHtml(task.title)}</strong>
-                    <p style="color:#8b92b3;font-size:13px;
-                              overflow-wrap:anywhere">
+                    <p style="color:#8b92b3;font-size:13px;overflow-wrap:anywhere">
                         ${escapeHtml(task.description || "Không có mô tả")}
                     </p>
                     <div style="color:#8b92b3;font-size:12px">
@@ -182,18 +136,9 @@ function renderTasks() {
                             style="display:block;margin-top:6px;padding:7px;
                                    border-radius:8px;background:#1c2040;
                                    color:#f0f2ff;border:1px solid #373b60">
-                        <option value="TODO"
-                            ${task.status === "TODO" ? "selected" : ""}>
-                            To do
-                        </option>
-                        <option value="IN_PROGRESS"
-                            ${task.status === "IN_PROGRESS" ? "selected" : ""}>
-                            In progress
-                        </option>
-                        <option value="DONE"
-                            ${task.status === "DONE" ? "selected" : ""}>
-                            Done
-                        </option>
+                        <option value="TODO" ${task.status === "TODO" ? "selected" : ""}>To do</option>
+                        <option value="IN_PROGRESS" ${task.status === "IN_PROGRESS" ? "selected" : ""}>In progress</option>
+                        <option value="DONE" ${task.status === "DONE" ? "selected" : ""}>Done</option>
                     </select>
                 </label>
             </div>
@@ -205,6 +150,93 @@ function renderTasks() {
             await updateTaskStatus(select);
         });
     });
+}
+
+function renderTaskBreakdown() {
+    const container = $("task-breakdown");
+    if (!container) return;
+
+    const total = projectTasks.length;
+
+    const items = [
+        {
+            name: "To do",
+            count: projectTasks.filter(task => task.status === "TODO").length,
+            className: "breakdown-todo"
+        },
+        {
+            name: "In progress",
+            count: projectTasks.filter(task => task.status === "IN_PROGRESS").length,
+            className: "breakdown-progress"
+        },
+        {
+            name: "Done",
+            count: projectTasks.filter(task => task.status === "DONE").length,
+            className: "breakdown-done"
+        }
+    ];
+
+    container.innerHTML = items.map(item => {
+        const percent = total
+            ? Math.round(item.count / total * 100)
+            : 0;
+
+        return `
+            <div class="task-breakdown-item">
+                <div>
+                    <span>${item.name}</span>
+                    <strong>${item.count}</strong>
+                </div>
+
+                <div class="breakdown-track">
+                    <div class="breakdown-fill ${item.className}"
+                         style="width:${percent}%"></div>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+function renderOverviewTasks() {
+    const container = $("overview-task-list");
+    if (!container) return;
+
+    const tasks = [...projectTasks]
+        .sort((a, b) => {
+            const order = { IN_PROGRESS: 0, TODO: 1, DONE: 2 };
+            return (order[a.status] ?? 3) - (order[b.status] ?? 3);
+        })
+        .slice(0, 5);
+
+    if (!tasks.length) {
+        container.innerHTML = `
+            <p class="empty-text">Chưa có nhiệm vụ nào trong dự án.</p>
+        `;
+        return;
+    }
+
+    container.innerHTML = tasks.map(task => `
+        <article class="overview-task-item">
+            <div>
+                <strong>${escapeHtml(task.title)}</strong>
+                <p>${escapeHtml(task.assigneeName || "Chưa giao")}</p>
+            </div>
+            <span class="task-status-badge">
+                ${escapeHtml(taskStatusText(task.status))}
+            </span>
+        </article>
+    `).join("");
+}
+
+function renderAnnouncements() {
+    const container = $("announcement-list");
+    if (!container) return;
+
+    container.innerHTML = `
+        <p class="empty-text">
+            Chưa có thông báo chung cho dự án.
+        </p>
+    `;
 }
 
 async function loadProject() {
@@ -230,8 +262,6 @@ async function loadProject() {
         );
 
         renderProject();
-        loadComments();
-        renderMilestones();
         renderTeam();
     } catch (error) {
         console.error("Không thể tải Project Detail:", error);
@@ -290,136 +320,90 @@ async function apiRequestStatus(taskId, status) {
 
     return response.json();
 }
+ async function renderTeam() {
+     const teamList = $("team-list");
+     const avatars = $("member-avatars");
 
-async function loadComments() {
-    const list = $("comment-list");
-    if (!list) return;
+     if (!teamList) return;
 
-    list.innerHTML = `
-        <p style="color:#8b92b3;font-size:13px">Đang tải bình luận...</p>
-    `;
+     teamList.innerHTML = `
+         <p class="team-loading">Đang tải thành viên...</p>
+     `;
 
-    try {
-        const comments = await api.get(
-            `/api/projects/${encodeURIComponent(projectId)}/comments`
-        );
+     if (avatars) avatars.innerHTML = "";
 
-        renderComments(comments);
-    } catch (error) {
-        console.error("Không thể tải bình luận:", error);
+     try {
+         const members = await api.get(
+             `/api/projects/${encodeURIComponent(projectId)}/members`
+         );
 
-        list.innerHTML = `
-            <p style="color:#f87171;font-size:13px">
-                Không thể tải bình luận. Hãy kiểm tra đăng nhập và kết nối backend.
-            </p>
-        `;
-    }
-}
+         if (!Array.isArray(members)) {
+             throw new Error("Dữ liệu thành viên không hợp lệ.");
+         }
 
-function renderComments(comments) {
-    const list = $("comment-list");
-    if (!list) return;
+         if (members.length === 0) {
+             teamList.innerHTML = `
+                 <div class="team-empty">
+                     <p>Chưa có thành viên trong dự án.</p>
+                 </div>
+             `;
+             return;
+         }
 
-    if (!Array.isArray(comments) || comments.length === 0) {
-        list.innerHTML = `
-            <p style="color:#8b92b3;font-size:13px">
-                Chưa có bình luận nào. Hãy viết bình luận đầu tiên!
-            </p>
-        `;
-        return;
-    }
+         const avatarColors = [
+             "#6366f1",
+             "#0891b2",
+             "#059669",
+             "#d97706",
+             "#db2777"
+         ];
 
-    list.innerHTML = comments.map(comment => {
-        const name = escapeHtml(comment.authorName || "Người dùng");
-        const initials = escapeHtml(comment.authorInitials || "?");
-        const content = escapeHtml(comment.content || "");
-        const time = comment.createdAt
-            ? new Date(comment.createdAt).toLocaleString("vi-VN")
-            : "";
+         teamList.innerHTML = members.map((member, index) => {
+             const name = member.name || "Thành viên";
+             const initials = member.initials ||
+                 name.split(/\s+/).map(word => word[0]).slice(-2).join("").toUpperCase();
 
-        return `
-            <div class="comment-item">
-                <div class="comment-avatar">${initials}</div>
+             return `
+                 <div class="team-member">
+                     <div class="team-avatar"
+                          style="background:${avatarColors[index % avatarColors.length]}22;
+                                 color:${avatarColors[index % avatarColors.length]}">
+                         ${escapeHtml(initials)}
+                     </div>
 
-                <div class="comment-content">
-                    <div class="comment-top">
-                        <span class="comment-author">${name}</span>
-                        <span class="comment-time">${escapeHtml(time)}</span>
-                    </div>
+                     <div class="team-info">
+                         <div class="team-name">
+                             ${escapeHtml(name)}
+                         </div>
+                         <div class="team-role">
+                             ${escapeHtml(member.email || "")}
+                         </div>
+                     </div>
+                 </div>
+             `;
+         }).join("");
 
-                    <p class="comment-text">${content}</p>
-                </div>
-            </div>
-        `;
-    }).join("");
-}
+         if (avatars) {
+             avatars.innerHTML = members.slice(0, 5).map((member, index) => `
+                 <div class="member-avatar"
+                      title="${escapeHtml(member.name || "")}"
+                      style="background:${avatarColors[index % avatarColors.length]}22;
+                             color:${avatarColors[index % avatarColors.length]}">
+                     ${escapeHtml(member.initials || "?")}
+                 </div>
+             `).join("");
+         }
 
-function setupCommentForm() {
-    const form = $("comment-form");
-    const input = $("comment-input");
+     } catch (error) {
+         console.error("Không thể tải thành viên dự án:", error);
 
-    if (!form || !input) return;
-
-    form.addEventListener("submit", async event => {
-        event.preventDefault();
-
-        const content = input.value.trim();
-
-        if (!content) {
-            input.focus();
-            return;
-        }
-
-        const button = form.querySelector('button[type="submit"]');
-
-        try {
-            if (button) button.disabled = true;
-
-            await api.post(
-                `/api/projects/${encodeURIComponent(projectId)}/comments`,
-                { content }
-            );
-
-            input.value = "";
-            await loadComments();
-        } catch (error) {
-            console.error("Không thể gửi bình luận:", error);
-
-            showError(`Gửi bình luận thất bại: ${error.message}`);
-        } finally {
-            if (button) button.disabled = false;
-        }
-    });
-}
-
-function renderMilestones() {
-    const list = $("milestone-list");
-    if (!list) return;
-
-    list.innerHTML = `
-        <div class="milestone-item">
-            <span class="milestone-check">—</span>
-            <span class="milestone-name">
-                Chưa có API quản lý milestone.
-            </span>
-        </div>
-    `;
-}
-
-function renderTeam() {
-    const team = $("team-list");
-    const avatars = $("member-avatars");
-
-    if (team) {
-        team.innerHTML = `
-            <p style="color:#8b92b3;font-size:13px">
-                Chưa có API lấy danh sách thành viên dự án.
-            </p>
-        `;
-    }
-
-    if (avatars) avatars.innerHTML = "";
-}
+         teamList.innerHTML = `
+             <p class="team-error">
+                 Không thể tải thành viên. ${escapeHtml(error.message)}
+             </p>
+         `;
+     }
+ }
 
 function setupTabs() {
     const tabs = document.querySelectorAll(".project-tab");
@@ -443,16 +427,23 @@ function setupTabs() {
                 if (panel) panel.hidden = key !== name;
             });
 
-            if (name === "Members" && panels.Members) {
-                panels.Members.innerHTML = `
-                    <div class="card" style="padding:20px">
-                        Backend chưa có API lấy thành viên dự án.
-                    </div>
-                `;
+            if (name === "Members") {
+                renderTeam();
+
+                if (panels.Members) {
+                    panels.Members.innerHTML = `
+                        <div class="card" style="padding:20px">
+                            Backend chưa có API lấy thành viên dự án.
+                        </div>
+                    `;
+                }
             }
 
-            if (name === "Settings" && panels.Settings) {
+            if (name === "Settings") {
                 renderSettings(panels.Settings);
+            }
+            if (tabName === "Members") {
+                renderTeam();
             }
         });
     });
@@ -587,6 +578,8 @@ function addTask() {
     const panel = $("tasks-panel");
     if (!panel) return;
 
+    const tasksTab = document.querySelector('[data-tab="Tasks"]');
+    if (tasksTab) tasksTab.click();
     const formContainer = document.createElement("div");
     formContainer.id = "add-task-form";
     formContainer.className = "card";
@@ -715,11 +708,10 @@ function setupKanbanButton() {
 }
 
 const addTaskButton = $("add-task-btn");
+
 if (addTaskButton) {
     addTaskButton.addEventListener("click", addTask);
 }
 
 setupTabs();
-setupKanbanButton();
-setupCommentForm();
 loadProject();

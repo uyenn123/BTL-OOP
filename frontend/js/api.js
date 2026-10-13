@@ -27,7 +27,17 @@ async function apiRequest(path, options = {}) {
         return null;
     }
 
-    return response.json();
+    const text = await response.text();
+
+    if (!text) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 }
 
 const api = {

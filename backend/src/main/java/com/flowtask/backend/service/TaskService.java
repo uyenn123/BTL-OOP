@@ -3,9 +3,7 @@ package com.flowtask.backend.service;
 import com.flowtask.backend.dto.Request.StatusRequest;
 import com.flowtask.backend.dto.Request.TaskRequest;
 import com.flowtask.backend.dto.Response.TaskView;
-import com.flowtask.backend.entity.Notification;
-import com.flowtask.backend.entity.Task;
-import com.flowtask.backend.entity.User;
+import com.flowtask.backend.entity.*;
 import com.flowtask.backend.repository.NotificationRepository;
 import com.flowtask.backend.repository.ProjectRepository;
 import com.flowtask.backend.repository.TaskRepository;
@@ -15,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.flowtask.backend.repository.ProjectActivityRepository;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +25,7 @@ public class TaskService {
     private final ProjectRepository projects;
     private final UserRepository users;
     private final NotificationRepository notifications;
-
+    private final ProjectActivityRepository activities;
     @Transactional(readOnly = true)
     public List<TaskView> all(User user) {
         return tasks.findByProjectWorkspaceOwnerIdOrderByStatusAscPositionAsc(user.getId())
@@ -44,11 +42,28 @@ public class TaskService {
         apply(task, request, user);
 
         var saved = tasks.save(task);
+
+        if (saved.getAssignee() == null) {
+            recordActivity(
+                    saved,
+                    user,
+                    ActivityType.TASK_CREATED,
+                    user.fullName() + " đã tạo task \"" + saved.getTitle() + "\""
+            );
+        } else {
+            recordActivity(
+                    saved,
+                    user,
+                    ActivityType.TASK_ASSIGNED,
+                    user.fullName() + " đã giao task \"" + saved.getTitle()
+                            + "\" cho " + saved.getAssignee().fullName()
+            );
+        }
+
         notifyAssignee(saved, user);
 
         return view(saved);
     }
-
     @Transactional
     public TaskView update(Long id, TaskRequest request, User user) {
         var task = owned(id, user);
@@ -58,12 +73,31 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskView updateStatus(Long id, StatusRequest request, User user) {
+    public TaskView updateStatus(
+            Long id,
+            StatusRequest request,
+            User user) {
+
         var task = owned(id, user);
+        var oldStatus = task.getStatus();
+
         task.setStatus(request.status());
         task.setPosition(request.position());
 
-        return view(tasks.save(task));
+        var saved = tasks.save(task);
+
+        if (oldStatus != TaskStatus.DONE
+                && saved.getStatus() == TaskStatus.DONE) {
+            recordActivity(
+                    saved,
+                    user,
+                    ActivityType.TASK_COMPLETED,
+                    user.fullName() + " đã hoàn thành task \""
+                            + saved.getTitle() + "\""
+            );
+        }
+
+        return view(saved);
     }
 
     @Transactional
@@ -146,5 +180,20 @@ public class TaskService {
                 task.getPosition(),
                 project.getColor()
         );
+    }
+    private void recordActivity(
+            Task task,
+            User actor,
+            ActivityType eventType,
+            String content) {
+
+        var activity = new ProjectActivity();
+        activity.setProject(task.getProject());
+        activity.setActor(actor);
+        activity.setEventType(eventType);
+        activity.setContent(content);
+        activity.setEntityId(task.getId());
+
+        activities.save(activity);
     }
 }

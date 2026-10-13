@@ -6,5 +6,5 @@ public record MemberView(
         String name,
         String initials,
         String role,
-        String status
+        String email
 ) {}

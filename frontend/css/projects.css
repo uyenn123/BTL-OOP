@@ -148,14 +148,6 @@
     background: transparent;
     color: #8b92b3;
 }
-
-.project-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 22px;
-}
-
 .filter-btn {
     padding: 6px 14px;
     border: 1px solid rgba(255, 255, 255, 0.1);

@@ -94,17 +94,18 @@
                 </div>
             </section>
 
+
             <nav class="project-tabs">
                 <button class="project-tab active" data-tab="Overview">
                     Tổng quan
                 </button>
 
                 <button class="project-tab" data-tab="Tasks">
-                    Nhiệm vụ
+                    Task Breakdown
                 </button>
 
                 <button class="project-tab" data-tab="Members">
-                    Thành viên
+                    Team
                 </button>
 
                 <button class="project-tab" data-tab="Settings">
@@ -112,41 +113,28 @@
                 </button>
             </nav>
 
-            <!-- Overview -->
+            <!-- Tổng quan -->
             <section id="overview-panel" class="tab-panel">
                 <div class="overview-grid">
+                    <div class="overview-main">
+                        <div class="card overview-section">
+                            <h2 class="card-heading">Tiến độ nhiệm vụ</h2>
+                            <div id="overview-task-list" class="overview-task-list"></div>
+                        </div>
 
-                    <div class="card main-card">
-                        <div class="card-heading">Milestones</div>
+                        <div class="card overview-section">
+                            <div class="announcement-heading">
+                                <h2 class="card-heading">Thông báo chung</h2>
+                                <span class="announcement-label">PROJECT</span>
+                            </div>
 
-                        <div id="milestone-list" class="milestone-list"></div>
-
-                        <div class="comments-section">
-                            <h2 class="card-heading">Bình luận</h2>
-
-                            <div id="comment-list"></div>
-
-                            <form id="comment-form" class="comment-form">
-                                <div class="current-avatar">ME</div>
-
-                                <input
-                                        id="comment-input"
-                                        type="text"
-                                        placeholder="Viết bình luận..."
-                                        autocomplete="off"
-                                        required
-                                >
-
-                                <button type="submit" class="primary-btn">
-                                    Gửi
-                                </button>
-                            </form>
+                            <div id="announcement-list" class="announcement-list"></div>
                         </div>
                     </div>
 
                     <aside class="overview-sidebar">
-                        <div class="card sidebar-card">
-                            <h2 class="card-heading">Task Breakdown</h2>
+                        <div class="card project-overview-card">
+                            <h3 class="card-heading">Task Breakdown</h3>
                             <div id="task-breakdown"></div>
                         </div>
 
@@ -155,21 +143,21 @@
                             <div id="team-list"></div>
                         </div>
                     </aside>
-
                 </div>
             </section>
 
-            <!-- Tasks -->
+            <!-- Task Breakdown -->
             <section id="tasks-panel" class="tab-panel" hidden>
-                <button id="open-kanban-btn" class="primary-btn">
-                    Xem bảng nhiệm vụ →
-                </button>
+                <div class="card overview-section">
+                    <h2 class="card-heading">Danh sách nhiệm vụ</h2>
+                    <div id="project-task-list" class="project-task-list"></div>
+                </div>
             </section>
 
-            <!-- Members -->
+            <!-- Team -->
             <section id="members-panel" class="tab-panel" hidden></section>
 
-            <!-- Settings -->
+            <!-- Cài đặt -->
             <section id="settings-panel" class="tab-panel" hidden></section>
 
         </main>

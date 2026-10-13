@@ -1,6 +1,6 @@
-
 const params = new URLSearchParams(window.location.search);
 const groupId = params.get("id");
+
 const statusDot = {
     online: "#34D399",
     away: "#FBBF24",
@@ -91,42 +91,154 @@ function renderGroup(data) {
 }
 
 function renderMembers(members, color) {
-    if (members.length === 0) {
-        page.members.innerHTML =
-            '<div class="empty-state">No members in this group.</div>';
-        return;
-    }
+    page.members.innerHTML = `
+        <div class="members-heading">
+            <div>
+                <h2>Thành viên nhóm</h2>
+                <p>${members.length} thành viên</p>
+            </div>
 
-    page.members.innerHTML = members.map(member => {
-        const status = String(member.status || "offline").toLowerCase();
-        const dotColor = statusDot[status] || statusDot.offline;
+            <button type="button" id="show-add-member-btn"
+                    class="primary-btn">
+                + Add Member
+            </button>
+        </div>
 
-        return `
-            <article class="member-card">
-                <div class="avatar-wrap">
-                    <div class="avatar"
-                         style="background:${color}25;color:${color}">
-                        ${escapeHtml(member.initials || "?")}
-                    </div>
-                    <span class="status-dot"
-                          style="background:${dotColor}"></span>
-                </div>
+        <form id="add-member-form" class="add-member-form hidden">
+            <label for="member-email">Email tài khoản FlowTask</label>
 
-                <div class="member-info">
-                    <div class="member-name">
-                        ${escapeHtml(member.fullName || member.name || "Unknown member")}
-                    </div>
-                    <div class="member-role">
-                        ${escapeHtml(member.role || "Member")}
-                    </div>
-                </div>
+            <div class="add-member-input-row">
+                <input
+                    id="member-email"
+                    type="email"
+                    placeholder="example@gmail.com"
+                    autocomplete="email"
+                    required
+                >
 
-                <div class="member-status" style="color:${color}">
-                    ${escapeHtml(status)}
-                </div>
-            </article>
-        `;
-    }).join("");
+                <button type="submit" id="add-member-btn" class="primary-btn">
+                    Add to group
+                </button>
+            </div>
+
+            <p id="add-member-message" role="status"></p>
+        </form>
+
+        <div class="members-list">
+            ${
+                members.length === 0
+                    ? '<div class="empty-state">Chưa có thành viên nào.</div>'
+                    : members.map(member => {
+                        const status = String(
+                            member.status || "offline"
+                        ).toLowerCase();
+
+                        const dotColor =
+                            statusDot[status] || statusDot.offline;
+
+
+return `
+    <article class="member-card">
+        <div class="avatar-wrap">
+            <div class="avatar"
+                 style="background:${color}18;color:${color}">
+                ${escapeHtml(member.initials || "?")}
+            </div>
+        </div>
+
+        <div class="member-info">
+            <div class="member-name">
+                ${escapeHtml(
+                    member.fullName ||
+                    member.name ||
+                    "Unknown member"
+                )}
+            </div>
+
+            <div class="member-email">
+                ${escapeHtml(member.email || "Chưa có email")}
+            </div>
+        </div>
+
+        <span class="member-role ${String(member.role || "Member")
+            .toLowerCase().replace(/\s+/g, "-")}">
+            ${escapeHtml(member.role || "Member")}
+        </span>
+    </article>
+`;
+
+                    }).join("")
+            }
+        </div>
+    `;
+
+    const showButton =
+        document.getElementById("show-add-member-btn");
+    const form = document.getElementById("add-member-form");
+    const emailInput = document.getElementById("member-email");
+    const message = document.getElementById("add-member-message");
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.hidden = true;
+
+    emailInput.addEventListener("input", () => {
+        const email = emailInput.value.trim();
+
+        submitButton.hidden = email.length === 0;
+        submitButton.disabled = !emailInput.checkValidity();
+    });
+    showButton.addEventListener("click", () => {
+        form.classList.toggle("hidden");
+
+        if (!form.classList.contains("hidden")) {
+            emailInput.focus();
+        }
+    });
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim();
+
+        message.textContent = "Đang thêm thành viên...";
+        message.style.color = "#64748b";
+        submitButton.disabled = true;
+
+        try {
+            await api.post(`${apiUrl}/members`, { email });
+
+            await loadGroup();
+        } catch (error) {
+              console.error("Lỗi thêm thành viên:", error);
+
+              const message = document.getElementById("add-member-message");
+
+              let errorData = {};
+
+              try {
+                  errorData = JSON.parse(error.message);
+              } catch {
+                  errorData = {};
+              }
+
+              if (errorData.status === 400 ||
+                  errorData.message?.includes("tự thêm chính mình")) {
+                  message.textContent = "Bạn không thể tự thêm chính mình vào nhóm.";
+                  message.style.color = "#F87171";
+              } else if (errorData.status === 409 ||
+                         errorData.message?.includes("đã là thành viên")) {
+                  message.textContent = "Thành viên này đã có trong nhóm.";
+                  message.style.color = "#FBBF24";
+              } else if (errorData.status === 404 ||
+                         errorData.message?.includes("Không tìm thấy")) {
+                  message.textContent = "Không tìm thấy tài khoản với email này.";
+                  message.style.color = "#F87171";
+              } else {
+                  message.textContent =
+                      errorData.message || "Thêm thành viên thất bại. Vui lòng thử lại.";
+                  message.style.color = "#F87171";
+              }
+          }
+    });
 }
 
 function renderProjects(projects) {
@@ -140,6 +252,7 @@ function renderProjects(projects) {
         const color = validColor(project.color);
         const total = Math.max(0, Number(project.taskCount) || 0);
         const done = Math.max(0, Number(project.doneCount) || 0);
+
         const percent = total
             ? Math.min(100, Math.round(done / total * 100))
             : 0;
@@ -170,6 +283,7 @@ function renderProjects(projects) {
     page.projects.querySelectorAll(".project-card").forEach(card => {
         card.addEventListener("click", () => {
             const id = card.dataset.projectId;
+
             window.location.href =
                 `project-detail.html?id=${encodeURIComponent(id)}`;
         });

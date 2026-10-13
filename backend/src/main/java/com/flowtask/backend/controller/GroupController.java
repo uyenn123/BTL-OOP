@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import com.flowtask.backend.dto.Request.AddGroupMemberRequest;
 import java.util.List;
 
 @RestController
@@ -61,4 +61,15 @@ public class GroupController {
     ) {
         groupService.delete(id, user);
     }
+
+    @PostMapping("/{id}/members")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addMember(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody AddGroupMemberRequest request
+    ) {
+        groupService.addMember(id, user, request);
+    }
+
 }

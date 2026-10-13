@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.flowtask.backend.dto.Request.AddGroupMemberRequest;
 import java.util.List;
-
+import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
@@ -22,7 +22,7 @@ public class GroupService {
     private final ProjectRepository projects;
     private final TaskRepository tasks;
     private final WorkspaceRepository workspaces;
-
+    private final UserRepository users;
     @Transactional(readOnly = true)
     public List<GroupView> getAll(User user) {
         return groups.findByWorkspaceOwnerIdOrderByName(user.getId())
@@ -42,7 +42,7 @@ public class GroupService {
                         member.getUser().fullName(),
                         member.getUser().initials(),
                         member.getRole(),
-                        "ONLINE"
+                        member.getUser().getEmail()
                 ))
                 .toList();
 
@@ -90,7 +90,51 @@ public class GroupService {
 
         return toView(group);
     }
+    @Transactional
+    public void addMember(Long id, User user, AddGroupMemberRequest request) {
+        TeamGroup group = owned(id, user);
 
+        String email = request.getEmail().trim();
+
+        String currentEmail = user.getEmail() == null
+                ? ""
+                : user.getEmail().trim();
+
+        if (!currentEmail.isEmpty()
+                && currentEmail.equalsIgnoreCase(email)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bạn không thể tự thêm chính mình vào nhóm"
+            );
+        }
+
+        User newUser = users.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Không tìm thấy tài khoản với email này"
+                ));
+
+        if (Objects.equals(user.getId(), newUser.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bạn không thể tự thêm chính mình vào nhóm"
+            );
+        }
+
+        if (members.existsByGroupIdAndUserId(id, newUser.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Người dùng đã là thành viên của nhóm"
+            );
+        }
+
+        GroupMember member = new GroupMember();
+        member.setGroup(group);
+        member.setUser(newUser);
+        member.setRole("Member");
+
+        members.save(member);
+    }
     @Transactional
     public GroupView update(Long id, User user, GroupRequest request) {
         TeamGroup group = owned(id, user);

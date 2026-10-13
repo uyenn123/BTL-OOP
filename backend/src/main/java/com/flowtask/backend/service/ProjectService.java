@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.flowtask.backend.dto.Response.ProjectMemberView;
 import com.flowtask.backend.repository.GroupMemberRepository;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -65,7 +64,6 @@ public class ProjectService {
 
         return view(projects.save(project));
     }
-
     @Transactional
     public ProjectView update(
             Long id,

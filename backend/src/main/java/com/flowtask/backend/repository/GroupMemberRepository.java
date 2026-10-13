@@ -1,4 +1,3 @@
-
 package com.flowtask.backend.repository;
 
 import com.flowtask.backend.entity.GroupMember;
@@ -9,4 +8,6 @@ import java.util.List;
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
 
     List<GroupMember> findByGroupId(Long groupId);
+
+    boolean existsByGroupIdAndUserId(Long groupId, Long userId);
 }
