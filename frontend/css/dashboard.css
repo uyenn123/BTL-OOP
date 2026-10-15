@@ -561,3 +561,418 @@ body {
     color: #E05260;
     font-weight: 600;
 }
+.delete-task-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-task-btn:hover {
+    color: #dc2626;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.delete-task-btn:active {
+    transform: scale(0.92);
+}
+
+.delete-task-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.delete-task-btn:focus-visible {
+    outline: 2px solid #f87171;
+    outline-offset: 2px;
+}
+
+.dashboard-task-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dashboard-task-row:hover {
+    background-color: rgba(99, 102, 241, 0.08);
+}
+
+.dashboard-task-row:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: -2px;
+}
+
+.dashboard-main {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 24px;
+    align-items: start;
+    margin-top: 24px;
+}
+
+.tasks-panel {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.quick-access-section {
+    min-width: 0;
+    margin: 0;
+}
+
+.quick-access-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.quick-projects-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quick-project-card {
+    min-width: 0;
+}
+
+@media (max-width: 1000px) {
+    .dashboard-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.quick-project-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quick-project-card:hover {
+    transform: translateY(-2px);
+}
+
+.quick-project-card:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 3px;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 24px 0;
+}
+
+.stat-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #E8EAF2;
+    border-radius: 16px;
+    background: #FFFFFF;
+    box-shadow: 0 3px 12px rgba(31, 41, 55, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(31, 41, 55, 0.08);
+}
+
+.stat-card > span {
+    display: block;
+    color: #747B8F;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stat-card strong {
+    display: block;
+    margin-top: 12px;
+    color: #20263A;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.stat-card .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+}
+
+.stat-card:nth-child(1) .stat-icon {
+    color: #6366F1;
+    background: #EEF0FF;
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    color: #0D9488;
+    background: #DDF8F2;
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    color: #D97706;
+    background: #FFF1D6;
+}
+
+.stat-card:nth-child(4) .stat-icon {
+    color: #16A34A;
+    background: #DCFCE7;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-card strong {
+        font-size: 25px;
+    }
+}
+
+```css
+.project-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 10px 0;
+    color: #6366F1;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.group-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 7px;
+    background: #EEF0FF;
+    color: #6366F1;
+    flex-shrink: 0;
+}
+```css
+/* ===== Dashboard stats - dark theme ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin: 24px 0 28px;
+}
+
+.stat-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px 24px;
+    border: 1px solid rgba(148, 163, 255, 0.10);
+    border-radius: 16px;
+    background: #131629;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+    transition: border-color 0.2s ease,
+                transform 0.2s ease,
+                background 0.2s ease;
+}
+
+.stat-card:hover {
+    background: #171B33;
+    border-color: rgba(129, 140, 248, 0.35);
+    transform: translateY(-3px);
+}
+
+.stat-card > span {
+    color: #929BBE;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stat-card strong {
+    margin-top: 10px;
+    color: #F0F2FF;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+/* Icon thống kê */
+.stat-card .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: rgba(129, 140, 248, 0.12);
+    color: #A5B4FC;
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    background: rgba(45, 212, 191, 0.10);
+    color: #5EEAD4;
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    background: rgba(251, 191, 36, 0.10);
+    color: #FCD34D;
+}
+
+.stat-card:nth-child(4) .stat-icon {
+    background: rgba(52, 211, 153, 0.10);
+    color: #6EE7B7;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-card strong {
+        font-size: 25px;
+    }
+}
+```css
+/* ===== Quick Access - dark theme ===== */
+.quick-access-section h2 {
+    color: #A5B4FC;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.quick-projects-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.quick-project-card {
+    padding: 20px;
+    border: 1px solid rgba(148, 163, 255, 0.10);
+    border-radius: 15px;
+    background: #131629;
+    color: #F0F2FF;
+    cursor: pointer;
+    transition: background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.quick-project-card:hover {
+    background: #191D36;
+    border-color: rgba(129, 140, 248, 0.38);
+    transform: translateY(-2px);
+}
+
+.quick-project-card h3 {
+    margin: 0 0 10px;
+    color: #F0F2FF;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.quick-project-card > p:not(.project-group) {
+    margin: 12px 0;
+    color: #A0A8C7;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.quick-project-card .project-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 5px 9px;
+    border: 1px solid rgba(129, 140, 248, 0.15);
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.10);
+    color: #A5B4FC;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.quick-project-card .group-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 19px;
+    height: 19px;
+    border-radius: 6px;
+    background: rgba(129, 140, 248, 0.16);
+    color: #C4B5FD;
+}
+
+.quick-project-card .project-progress {
+    margin-top: 16px;
+}
+
+.quick-project-card .progress-track {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(148, 163, 184, 0.13);
+}
+
+.quick-project-card .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #6366F1, #A78BFA);
+}
+
+.quick-project-card .project-progress small {
+    display: block;
+    margin-top: 9px;
+    color: #929BBE;
+    font-size: 11px;
+}
+
+.quick-project-card > span {
+    display: inline-block;
+    margin-top: 14px;
+    padding-top: 12px;
+    width: 100%;
+    border-top: 1px solid rgba(148, 163, 184, 0.10);
+    color: #C4B5FD;
+    font-size: 12px;
+}

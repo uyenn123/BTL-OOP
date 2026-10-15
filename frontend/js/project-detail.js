@@ -103,6 +103,10 @@ function renderProject() {
     renderAnnouncements();
 }
 
+function openTask(id) {
+    window.location.href = `task-detail.html?id=${encodeURIComponent(id)}`;
+}
+
 function renderTasks() {
     const list = $("project-task-list");
     if (!list) return;
@@ -115,7 +119,9 @@ function renderTasks() {
     }
 
     list.innerHTML = projectTasks.map(task => `
-        <article class="card" style="padding:16px;margin-top:12px">
+        <article class="card project-task-item"
+                 data-task-id="${escapeHtml(task.id)}"
+                 style="padding:16px;margin-top:12px;cursor:pointer">
             <div style="display:flex;justify-content:space-between;
                         align-items:flex-start;gap:12px;flex-wrap:wrap">
                 <div style="min-width:0;flex:1">
@@ -144,6 +150,14 @@ function renderTasks() {
             </div>
         </article>
     `).join("");
+
+    list.querySelectorAll(".project-task-item").forEach(item => {
+        item.addEventListener("click", event => {
+            if (event.target.closest("select, option, label")) return;
+
+            openTask(item.dataset.taskId);
+        });
+    });
 
     list.querySelectorAll(".task-status-select").forEach(select => {
         select.addEventListener("change", async () => {
@@ -216,7 +230,9 @@ function renderOverviewTasks() {
     }
 
     container.innerHTML = tasks.map(task => `
-        <article class="overview-task-item">
+        <article class="overview-task-item"
+                 data-task-id="${escapeHtml(task.id)}"
+                 style="cursor:pointer">
             <div>
                 <strong>${escapeHtml(task.title)}</strong>
                 <p>${escapeHtml(task.assigneeName || "Chưa giao")}</p>
@@ -226,6 +242,12 @@ function renderOverviewTasks() {
             </span>
         </article>
     `).join("");
+
+    container.querySelectorAll(".overview-task-item").forEach(item => {
+        item.addEventListener("click", () => {
+            openTask(item.dataset.taskId);
+        });
+    });
 }
 
 function renderAnnouncements() {
@@ -404,7 +426,6 @@ async function apiRequestStatus(taskId, status) {
          `;
      }
  }
-
 function setupTabs() {
     const tabs = document.querySelectorAll(".project-tab");
 
@@ -424,31 +445,21 @@ function setupTabs() {
             });
 
             Object.entries(panels).forEach(([key, panel]) => {
-                if (panel) panel.hidden = key !== name;
+                if (panel) {
+                    panel.hidden = key !== name;
+                }
             });
 
             if (name === "Members") {
                 renderTeam();
-
-                if (panels.Members) {
-                    panels.Members.innerHTML = `
-                        <div class="card" style="padding:20px">
-                            Backend chưa có API lấy thành viên dự án.
-                        </div>
-                    `;
-                }
             }
 
             if (name === "Settings") {
                 renderSettings(panels.Settings);
             }
-            if (tabName === "Members") {
-                renderTeam();
-            }
         });
     });
 }
-
 function renderSettings(panel) {
     if (!project) return;
 
@@ -562,140 +573,119 @@ function renderSettings(panel) {
         }
     });
 }
-
 function addTask() {
     if (!project) return;
 
-    if ($("add-task-form")) {
-        $("add-task-form").scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-        $("add-task-title")?.focus();
+    const modal = $("project-task-modal");
+    const form = $("project-task-form");
+    const dueDateInput = $("project-task-due-date");
+    const assigneeSelect = $("project-task-assignee");
+    const submitButton = $("save-project-task");
+    const error = $("project-task-modal-error");
+
+    if (!modal || !form) {
+        console.error("Không tìm thấy form thêm nhiệm vụ trong HTML.");
         return;
     }
 
-    const panel = $("tasks-panel");
-    if (!panel) return;
+    modal.hidden = false;
+    error.hidden = true;
+    form.reset();
 
-    const tasksTab = document.querySelector('[data-tab="Tasks"]');
-    if (tasksTab) tasksTab.click();
-    const formContainer = document.createElement("div");
-    formContainer.id = "add-task-form";
-    formContainer.className = "card";
-    formContainer.style.cssText = "padding:24px;margin:16px 0";
+    const now = new Date();
+    const today = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+    ].join("-");
 
-    formContainer.innerHTML = `
-        <h3 style="margin:0 0 18px;color:#f0f2ff">
-            Thêm nhiệm vụ mới
-        </h3>
+    dueDateInput.min = today;
 
-        <form id="new-task-form" style="display:grid;gap:14px">
-            <label>
-                Tên nhiệm vụ *
-                <input id="add-task-title" name="title"
-                       required maxlength="200"
-                       placeholder="Nhập tên nhiệm vụ">
-            </label>
-
-            <label>
-                Mô tả
-                <textarea name="description" rows="3"
-                          placeholder="Mô tả nhiệm vụ..."></textarea>
-            </label>
-
-            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
-                <label>
-                    Trạng thái
-                    <select name="status">
-                        <option value="TODO">To do</option>
-                        <option value="IN_PROGRESS">In progress</option>
-                        <option value="DONE">Done</option>
-                    </select>
-                </label>
-
-                <label>
-                    Độ ưu tiên
-                    <select name="priority">
-                        <option value="LOW">Low</option>
-                        <option value="MEDIUM" selected>Medium</option>
-                        <option value="HIGH">High</option>
-                        <option value="URGENT">Urgent</option>
-                    </select>
-                </label>
-            </div>
-
-            <label>
-                Hạn hoàn thành
-                <input name="dueDate" type="date">
-            </label>
-
-            <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap">
-                <button type="button" id="cancel-add-task"
-                        class="delete-project-btn">
-                    Hủy
-                </button>
-                <button type="submit" class="primary-btn">
-                    Tạo nhiệm vụ
-                </button>
-            </div>
-        </form>
-    `;
-
-    const list = $("project-task-list");
-    if (list) {
-        list.before(formContainer);
-    } else {
-        panel.appendChild(formContainer);
+    function closeProjectModal() {
+        modal.hidden = true;
     }
 
-    $("cancel-add-task").addEventListener("click", () => {
-        formContainer.remove();
-    });
+    $("cancel-project-modal").onclick = closeProjectModal;
 
-    $("new-task-form").addEventListener("submit", async event => {
+    modal.onclick = event => {
+        if (event.target === modal) closeProjectModal();
+    };
+
+    assigneeSelect.innerHTML =
+        '<option value="">Chưa giao nhiệm vụ</option>';
+
+    api.get(`/api/projects/${encodeURIComponent(projectId)}/members`)
+        .then(members => {
+            if (!Array.isArray(members)) return;
+
+            members.forEach(member => {
+                const option = document.createElement("option");
+                option.value = member.id;
+                option.textContent =
+                    member.name || member.fullName ||
+                    member.email || "Thành viên";
+
+                assigneeSelect.appendChild(option);
+            });
+        })
+        .catch(err => {
+            console.error("Không tải được thành viên dự án:", err);
+        });
+
+    form.onsubmit = async event => {
         event.preventDefault();
 
-        const form = event.currentTarget;
         const data = new FormData(form);
         const title = String(data.get("title") || "").trim();
+        const dueDate = String(data.get("dueDate") || "");
 
         if (!title) {
-            $("add-task-title").focus();
+            error.textContent = "Vui lòng nhập tên nhiệm vụ.";
+            error.hidden = false;
             return;
         }
 
-        const button = form.querySelector('button[type="submit"]');
-        button.disabled = true;
-        button.textContent = "Đang tạo...";
+        if (dueDate && dueDate < today) {
+            error.textContent = "Deadline không được trước ngày hôm nay.";
+            error.hidden = false;
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Đang tạo...";
+        error.hidden = true;
 
         try {
             await api.post("/api/tasks", {
                 projectId: Number(projectId),
                 title,
                 description: String(data.get("description") || "").trim(),
-                assigneeId: null,
-                status: data.get("status"),
+                assigneeId: data.get("assigneeId")
+                    ? Number(data.get("assigneeId"))
+                    : null,
+                status: "TODO",
                 priority: data.get("priority"),
                 tags: [],
-                dueDate: data.get("dueDate") || null,
+                dueDate: dueDate || null,
                 position: projectTasks.length
             });
 
-            formContainer.remove();
+            closeProjectModal();
             await loadProject();
 
             const tasksTab = document.querySelector('[data-tab="Tasks"]');
             if (tasksTab) tasksTab.click();
-        } catch (error) {
-            console.error("Không thể tạo nhiệm vụ:", error);
-            showError(`Tạo nhiệm vụ thất bại: ${error.message}`);
-            button.disabled = false;
-            button.textContent = "Tạo nhiệm vụ";
+        } catch (err) {
+            console.error("Không thể tạo nhiệm vụ:", err);
+            error.textContent = `Tạo nhiệm vụ thất bại: ${err.message}`;
+            error.hidden = false;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "+ Tạo nhiệm vụ";
         }
-    });
+    };
 
-    $("add-task-title").focus();
+    $("project-task-title").focus();
 }
 function setupKanbanButton() {
     const button = $("open-kanban-btn");

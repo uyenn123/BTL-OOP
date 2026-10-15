@@ -1,3 +1,4 @@
+
 const params = new URLSearchParams(window.location.search);
 const groupId = params.get("id");
 
@@ -98,8 +99,11 @@ function renderMembers(members, color) {
                 <p>${members.length} thành viên</p>
             </div>
 
-            <button type="button" id="show-add-member-btn"
-                    class="primary-btn">
+            <button
+                type="button"
+                id="show-add-member-btn"
+                class="primary-btn"
+            >
                 + Add Member
             </button>
         </div>
@@ -116,7 +120,12 @@ function renderMembers(members, color) {
                     required
                 >
 
-                <button type="submit" id="add-member-btn" class="primary-btn">
+                <button
+                    type="submit"
+                    id="add-member-btn"
+                    class="primary-btn"
+                    hidden
+                >
                     Add to group
                 </button>
             </div>
@@ -136,37 +145,42 @@ function renderMembers(members, color) {
                         const dotColor =
                             statusDot[status] || statusDot.offline;
 
+                        return `
+                            <article class="member-card">
+                                <div class="avatar-wrap">
+                                    <div
+                                        class="avatar"
+                                        style="background:${color}18;color:${color}"
+                                    >
+                                        ${escapeHtml(member.initials || "?")}
+                                    </div>
+                                </div>
 
-return `
-    <article class="member-card">
-        <div class="avatar-wrap">
-            <div class="avatar"
-                 style="background:${color}18;color:${color}">
-                ${escapeHtml(member.initials || "?")}
-            </div>
-        </div>
+                                <div class="member-info">
+                                    <div class="member-name">
+                                        ${escapeHtml(
+                                            member.fullName ||
+                                            member.name ||
+                                            "Unknown member"
+                                        )}
+                                    </div>
 
-        <div class="member-info">
-            <div class="member-name">
-                ${escapeHtml(
-                    member.fullName ||
-                    member.name ||
-                    "Unknown member"
-                )}
-            </div>
+                                    <div class="member-email">
+                                        ${escapeHtml(
+                                            member.email || "Chưa có email"
+                                        )}
+                                    </div>
+                                </div>
 
-            <div class="member-email">
-                ${escapeHtml(member.email || "Chưa có email")}
-            </div>
-        </div>
-
-        <span class="member-role ${String(member.role || "Member")
-            .toLowerCase().replace(/\s+/g, "-")}">
-            ${escapeHtml(member.role || "Member")}
-        </span>
-    </article>
-`;
-
+                                <span
+                                    class="member-role ${String(
+                                        member.role || "Member"
+                                    ).toLowerCase().replace(/\s+/g, "-")}"
+                                >
+                                    ${escapeHtml(member.role || "Member")}
+                                </span>
+                            </article>
+                        `;
                     }).join("")
             }
         </div>
@@ -174,11 +188,18 @@ return `
 
     const showButton =
         document.getElementById("show-add-member-btn");
-    const form = document.getElementById("add-member-form");
-    const emailInput = document.getElementById("member-email");
-    const message = document.getElementById("add-member-message");
-    const submitButton = form.querySelector('button[type="submit"]');
-    submitButton.hidden = true;
+
+    const form =
+        document.getElementById("add-member-form");
+
+    const emailInput =
+        document.getElementById("member-email");
+
+    const message =
+        document.getElementById("add-member-message");
+
+    const submitButton =
+        document.getElementById("add-member-btn");
 
     emailInput.addEventListener("input", () => {
         const email = emailInput.value.trim();
@@ -186,6 +207,7 @@ return `
         submitButton.hidden = email.length === 0;
         submitButton.disabled = !emailInput.checkValidity();
     });
+
     showButton.addEventListener("click", () => {
         form.classList.toggle("hidden");
 
@@ -199,6 +221,10 @@ return `
 
         const email = emailInput.value.trim();
 
+        if (!email) {
+            return;
+        }
+
         message.textContent = "Đang thêm thành viên...";
         message.style.color = "#64748b";
         submitButton.disabled = true;
@@ -206,38 +232,63 @@ return `
         try {
             await api.post(`${apiUrl}/members`, { email });
 
+            message.textContent = "Thêm thành viên thành công!";
+            message.style.color = "#34D399";
+
             await loadGroup();
         } catch (error) {
-              console.error("Lỗi thêm thành viên:", error);
+            console.error("Lỗi thêm thành viên:", error);
 
-              const message = document.getElementById("add-member-message");
+            let errorData = {};
 
-              let errorData = {};
+            try {
+                errorData = JSON.parse(error.message);
+            } catch {
+                errorData = {
+                    message: error.message
+                };
+            }
 
-              try {
-                  errorData = JSON.parse(error.message);
-              } catch {
-                  errorData = {};
-              }
+            const errorMessage = String(
+                errorData.message || error.message || ""
+            );
 
-              if (errorData.status === 400 ||
-                  errorData.message?.includes("tự thêm chính mình")) {
-                  message.textContent = "Bạn không thể tự thêm chính mình vào nhóm.";
-                  message.style.color = "#F87171";
-              } else if (errorData.status === 409 ||
-                         errorData.message?.includes("đã là thành viên")) {
-                  message.textContent = "Thành viên này đã có trong nhóm.";
-                  message.style.color = "#FBBF24";
-              } else if (errorData.status === 404 ||
-                         errorData.message?.includes("Không tìm thấy")) {
-                  message.textContent = "Không tìm thấy tài khoản với email này.";
-                  message.style.color = "#F87171";
-              } else {
-                  message.textContent =
-                      errorData.message || "Thêm thành viên thất bại. Vui lòng thử lại.";
-                  message.style.color = "#F87171";
-              }
-          }
+            if (
+                errorMessage.includes("Group not found") ||
+                errorMessage.includes("Nhóm không tồn tại")
+            ) {
+                message.textContent =
+                    "Không tìm thấy nhóm. Vui lòng kiểm tra ID nhóm.";
+            } else if (errorData.status === 403) {
+                message.textContent =
+                    "Bạn không có quyền thêm thành viên. Chỉ Leader mới được thêm.";
+            } else if (
+                errorData.status === 400 ||
+                errorMessage.includes("tự thêm chính mình")
+            ) {
+                message.textContent =
+                    "Email không hợp lệ hoặc bạn không thể tự thêm chính mình.";
+            } else if (
+                errorData.status === 409 ||
+                errorMessage.includes("đã là thành viên")
+            ) {
+                message.textContent =
+                    "Thành viên này đã có trong nhóm.";
+            } else if (
+                errorData.status === 404 ||
+                errorMessage.includes("Không tìm thấy")
+            ) {
+                message.textContent =
+                    "Không tìm thấy tài khoản với email này.";
+            } else {
+                message.textContent =
+                    errorMessage || "Thêm thành viên thất bại. Vui lòng thử lại.";
+            }
+
+            message.style.color = "#F87171";
+        } finally {
+            submitButton.disabled = false;
+        }
     });
 }
 
@@ -258,10 +309,14 @@ function renderProjects(projects) {
             : 0;
 
         return `
-            <article class="project-card"
-                     data-project-id="${escapeHtml(project.id)}">
-                <span class="project-dot"
-                      style="background:${color}"></span>
+            <article
+                class="project-card"
+                data-project-id="${escapeHtml(project.id)}"
+            >
+                <span
+                    class="project-dot"
+                    style="background:${color}"
+                ></span>
 
                 <div class="project-info">
                     <div class="project-name">
@@ -269,9 +324,10 @@ function renderProjects(projects) {
                     </div>
 
                     <div class="progress-track">
-                        <div class="progress-fill"
-                             style="width:${percent}%;background:${color}">
-                        </div>
+                        <div
+                            class="progress-fill"
+                            style="width:${percent}%;background:${color}"
+                        ></div>
                     </div>
                 </div>
 
@@ -292,7 +348,10 @@ function renderProjects(projects) {
 
 function setTab(tab) {
     page.tabs.forEach(button => {
-        button.classList.toggle("active", button.dataset.tab === tab);
+        button.classList.toggle(
+            "active",
+            button.dataset.tab === tab
+        );
     });
 
     page.members.classList.toggle("hidden", tab !== "members");

@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.flowtask.backend.dto.Request.AddGroupMemberRequest;
 import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
@@ -25,16 +26,34 @@ public class GroupService {
     private final UserRepository users;
     @Transactional(readOnly = true)
     public List<GroupView> getAll(User user) {
-        return groups.findByWorkspaceOwnerIdOrderByName(user.getId())
-                .stream()
+        List<TeamGroup> groupList = new ArrayList<>(
+                groups.findByWorkspaceOwnerIdOrderByName(user.getId())
+        );
+
+        List<GroupMember> memberList = members.findByUserId(user.getId());
+        System.out.println("USER ID = " + user.getId());
+        System.out.println("USER EMAIL = " + user.getEmail());
+        System.out.println("MEMBER COUNT = " + memberList.size());
+
+        for (GroupMember member : memberList) {
+            System.out.println("GROUP ID = " + member.getGroup().getId());
+        }
+        for (GroupMember member : memberList) {
+            TeamGroup group = member.getGroup();
+
+            if (groupList.stream().noneMatch(
+                    g -> g.getId().equals(group.getId()))) {
+                groupList.add(group);
+            }
+        }
+
+        return groupList.stream()
                 .map(this::toView)
                 .toList();
     }
-
     @Transactional(readOnly = true)
     public GroupDetail getDetail(Long id, User user) {
-        TeamGroup group = owned(id, user);
-
+        TeamGroup group = accessible(id, user);
         List<MemberView> memberViews = members.findByGroupId(id)
                 .stream()
                 .map(member -> new MemberView(
@@ -70,6 +89,46 @@ public class GroupService {
                 projectViews
         );
     }
+    private TeamGroup accessible(Long id, User user) {
+        TeamGroup group = groups.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Group not found"
+                ));
+
+        boolean isOwner = group.getWorkspace().getOwner()
+                .getId().equals(user.getId());
+
+        boolean isMember = members.existsByGroupIdAndUserId(
+                id, user.getId()
+        );
+
+        if (!isOwner && !isMember) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Bạn không có quyền truy cập nhóm"
+            );
+        }
+
+        return group;
+    }
+
+    private TeamGroup leaderOnly(Long id, User user) {
+        TeamGroup group = accessible(id, user);
+
+        boolean isLeader = members.findByGroupId(id).stream()
+                .anyMatch(member ->
+                        member.getUser().getId().equals(user.getId())
+                                && "Team Lead".equalsIgnoreCase(member.getRole())
+                );
+
+        if (!isLeader) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Chỉ Leader mới được thực hiện thao tác này"
+            );
+        }
+
+        return group;
+    }
 
     @Transactional
     public GroupView create(User user, GroupRequest request) {
@@ -90,18 +149,49 @@ public class GroupService {
 
         return toView(group);
     }
+
     @Transactional
     public void addMember(Long id, User user, AddGroupMemberRequest request) {
-        TeamGroup group = owned(id, user);
+        System.out.println("ADD MEMBER - GROUP ID = " + id);
+        System.out.println("ADD MEMBER - USER ID = " + user.getId());
+
+        TeamGroup group = groups.findById(id)
+                .orElseThrow(() -> {
+                    System.out.println("GROUP NOT FOUND IN DATABASE: " + id);
+                    return new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Group not found: " + id
+                    );
+                });
+
+        boolean isOwner = group.getWorkspace().getOwner()
+                .getId().equals(user.getId());
+
+        boolean isLeader = members.findByGroupId(id).stream()
+                .anyMatch(member ->
+                        member.getUser().getId().equals(user.getId())
+                                && "Team Lead".equalsIgnoreCase(member.getRole())
+                );
+
+        if (!isOwner && !isLeader) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Chỉ Leader mới được thêm thành viên"
+            );
+        }
+
+        if (request == null || request.getEmail() == null
+                || request.getEmail().isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email không được để trống"
+            );
+        }
 
         String email = request.getEmail().trim();
 
-        String currentEmail = user.getEmail() == null
-                ? ""
-                : user.getEmail().trim();
-
-        if (!currentEmail.isEmpty()
-                && currentEmail.equalsIgnoreCase(email)) {
+        if (user.getEmail() != null
+                && user.getEmail().trim().equalsIgnoreCase(email)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Bạn không thể tự thêm chính mình vào nhóm"
@@ -135,16 +225,19 @@ public class GroupService {
 
         members.save(member);
     }
+
+
     @Transactional
     public GroupView update(Long id, User user, GroupRequest request) {
-        TeamGroup group = owned(id, user);
+        TeamGroup group = leaderOnly(id, user);
         apply(group, request);
         return toView(groups.save(group));
     }
 
+
     @Transactional
     public void delete(Long id, User user) {
-        groups.delete(owned(id, user));
+        groups.delete(leaderOnly(id, user));
     }
 
     private TeamGroup owned(Long id, User user) {

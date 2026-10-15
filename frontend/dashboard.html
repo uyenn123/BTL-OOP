@@ -24,80 +24,57 @@
     </header>
 
     <section class="stats-grid" id="stats-grid"></section>
-
-    <section class="dashboard-main">
-        <div class="panel tasks-panel">
-            <div class="panel-header">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="all">All Tasks</button>
-                    <button class="tab-btn" data-tab="mine">Mine</button>
-                </div>
-
-                <a href="tasks.html" class="view-all">View all →</a>
-            </div>
-
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Group</th>
-                        <th>Project</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Due</th>
-                    </tr>
-                    </thead>
-                    <tbody id="task-table-body">
-                    <tr>
-                        <td colspan="5" class="empty-message">Loading tasks...</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <aside class="panel activity-panel">
-            <div class="panel-header">
-                <h2>Activity</h2>
-            </div>
-
-            <div id="activity-list"></div>
-
-            <div class="sprint-card">
-                <div class="sprint-heading">
-                    <span>Sprint 7</span>
-                    <span class="sprint-percent">68%</span>
-                </div>
-
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: 68%"></div>
-                </div>
-
-                <div class="sprint-stats">
-                    <div>
-                        <strong>21</strong>
-                        <span>Done</span>
+        <section class="dashboard-main">
+            <div class="panel tasks-panel">
+                <div class="panel-header">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="all">
+                            All Tasks
+                        </button>
+                        <button class="tab-btn" data-tab="mine">
+                            My Tasks
+                        </button>
+                        <button class="tab-btn" data-tab="assigned">
+                            Assigned by Me
+                        </button>
                     </div>
-                    <div>
-                        <strong>5</strong>
-                        <span>Left</span>
-                    </div>
-                    <div>
-                        <strong>3d</strong>
-                        <span>Remain</span>
-                    </div>
+
+                    <a href="tasks.html" class="view-all">View all →</a>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Group</th>
+                            <th>Project</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="task-table-body">
+                        <tr>
+                            <td colspan="7" class="empty-message">
+                                Loading tasks...
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </aside>
-    </section>
 
-    <section class="quick-access-section">
-        <h2>Quick Access</h2>
-        <div class="quick-projects-grid" id="quick-projects">
-            <p class="muted">Loading projects...</p>
-        </div>
-    </section>
+            <!-- Bên phải: Quick Access -->
+            <section class="quick-access-section">
+                <h2>Quick Access</h2>
+
+                <div class="quick-projects-grid" id="quick-projects">
+                    <p class="muted">Loading projects...</p>
+                </div>
+            </section>
+        </section>
 
     <p id="dashboard-error" class="error-message" role="alert"></p>
     </div>

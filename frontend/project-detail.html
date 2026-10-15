@@ -163,6 +163,75 @@
         </main>
     </div>
 </div>
+<div id="project-task-modal" class="modal-overlay" hidden>
+    <section class="task-modal task-modal-modern"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="project-modal-title">
+
+        <div class="task-modal-heading">
+            <div class="task-modal-icon">+</div>
+            <div>
+                <h2 id="project-modal-title">Thêm nhiệm vụ mới</h2>
+                <p>Điền thông tin để tạo nhiệm vụ cho dự án.</p>
+            </div>
+        </div>
+
+        <form id="project-task-form">
+            <div class="form-group">
+                <label for="project-task-title">Tên nhiệm vụ <span>*</span></label>
+                <input id="project-task-title" name="title"
+                       maxlength="200" required
+                       placeholder="Nhập tên nhiệm vụ">
+            </div>
+
+            <div class="form-group">
+                <label for="project-task-description">Mô tả</label>
+                <textarea id="project-task-description"
+                          name="description" rows="3"
+                          placeholder="Mô tả công việc cần thực hiện"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="project-task-assignee">Người thực hiện</label>
+                <select id="project-task-assignee" name="assigneeId">
+                    <option value="">Chưa giao nhiệm vụ</option>
+                </select>
+            </div>
+
+            <div class="task-modal-row">
+                <div class="form-group">
+                    <label for="project-task-priority">Độ ưu tiên</label>
+                    <select id="project-task-priority" name="priority" required>
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM" selected>Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="URGENT">Urgent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="project-task-due-date">Deadline</label>
+                    <input id="project-task-due-date" name="dueDate"
+                           type="date">
+                </div>
+            </div>
+
+            <p id="project-task-modal-error"
+               class="error-message" role="alert" hidden></p>
+
+            <div class="task-modal-divider"></div>
+
+            <div class="modal-actions task-modal-actions">
+                <button type="button" id="cancel-project-modal"
+                        class="secondary-btn">Hủy</button>
+                <button type="submit" id="save-project-task"
+                        class="primary-btn">+ Tạo nhiệm vụ</button>
+            </div>
+        </form>
+    </section>
+</div>
+
 <script src="js/sidebar.js"></script>
 </body>
 </html>

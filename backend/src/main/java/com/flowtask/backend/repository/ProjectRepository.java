@@ -10,4 +10,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByWorkspaceOwnerIdOrderByCreatedAtDesc(Long ownerId);
 
     long countByGroupId(Long groupId);
+    boolean existsByIdAndWorkspaceOwnerId(Long projectId, Long userId);
+    List<Project> findDistinctByGroupIdInOrderByCreatedAtDesc(
+            List<Long> groupIds
+    );
 }

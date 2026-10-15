@@ -12,7 +12,7 @@ body {
 button,
 input,
 textarea,
-select {
+select
     font: inherit;
 }
 
@@ -174,11 +174,6 @@ button {
     transition: background 0.2s, border-color 0.2s;
 }
 
-.kanban-column.drag-over {
-    border: 1.5px dashed rgba(99, 102, 241, 0.6);
-    background: rgba(99, 102, 241, 0.05);
-}
-
 .column-header {
     padding: 14px 12px;
     display: flex;
@@ -251,13 +246,7 @@ button {
     transform: translateY(-1px);
 }
 
-.task-card:active {
-    cursor: grabbing;
-}
 
-.task-card.dragging {
-    opacity: 0.4;
-}
 
 .task-tags {
     display: flex;

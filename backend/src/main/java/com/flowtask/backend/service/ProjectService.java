@@ -33,8 +33,13 @@ public class ProjectService {
     public List<ProjectView> getAll(User user) {
         checkUser(user);
 
-        return projects
-                .findByWorkspaceOwnerIdOrderByCreatedAtDesc(user.getId())
+        List<Long> groupIds = groupMembers.findByUserId(user.getId())
+                .stream()
+                .map(member -> member.getGroup().getId())
+                .distinct()
+                .toList();
+
+        return projects.findDistinctByGroupIdInOrderByCreatedAtDesc(groupIds)
                 .stream()
                 .map(this::view)
                 .toList();
@@ -43,7 +48,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ProjectView getOne(Long id, User user) {
         checkUser(user);
-        return view(owned(id, user));
+        return view(accessible(id, user));
     }
 
     @Transactional
@@ -160,7 +165,7 @@ public class ProjectService {
     public List<ProjectMemberView> getMembers(Long id, User user) {
         checkUser(user);
 
-        Project project = owned(id, user);
+        Project project = accessible(id, user);
         Long groupId = project.getGroup().getId();
 
         return groupMembers.findByGroupId(groupId)
@@ -172,6 +177,34 @@ public class ProjectService {
                         member.getUser().initials()
                 ))
                 .toList();
+    }
+    private Project accessible(Long id, User user) {
+        Project project = projects.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Project not found"
+                ));
+
+        if (project.getWorkspace() != null
+                && project.getWorkspace().getOwner() != null
+                && Objects.equals(
+                project.getWorkspace().getOwner().getId(),
+                user.getId()
+        )) {
+            return project;
+        }
+
+        Long groupId = project.getGroup().getId();
+
+        if (groupMembers.existsByGroupIdAndUserId(
+                groupId, user.getId())) {
+            return project;
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Project not found"
+        );
     }
 
 }

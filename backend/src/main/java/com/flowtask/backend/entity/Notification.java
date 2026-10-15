@@ -19,4 +19,16 @@ public class Notification extends BaseEntity {
 
     @Column(name = "is_read", nullable = false)
     private boolean read;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @Column(name = "task_id")
+    private Long taskId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 40)
+    private NotificationType type;
+
 }

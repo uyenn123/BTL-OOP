@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
+import com.flowtask.backend.dto.Request.ChecklistRequest;
 import java.util.List;
 
 @RestController
@@ -24,7 +24,12 @@ public class TaskController {
     public List<TaskView> all(@AuthenticationPrincipal User user) {
         return taskService.all(user);
     }
-
+    @GetMapping("/{id}")
+    public TaskView detail(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return taskService.getById(id, user);
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TaskView create(
@@ -55,5 +60,12 @@ public class TaskController {
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
         taskService.delete(id, user);
+    }
+    @PatchMapping("/{id}/checklist")
+    public TaskView updateChecklist(
+            @PathVariable Long id,
+            @RequestBody ChecklistRequest request,
+            @AuthenticationPrincipal User user) {
+        return taskService.updateChecklist(id, request, user);
     }
 }

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Detail | FlowTask</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/task-detail.css">
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="detail-page">
+        <button class="back-btn" id="back-btn">
+            ← Quay lại Tasks
+        </button>
+
+        <section class="detail-card">
+            <header class="detail-header">
+                <div>
+                    <p class="eyebrow">TASK DETAILS</p>
+                    <p class="project-name" id="detail-project">
+                        Đang tải...
+                    </p>
+                </div>
+                <span class="status-badge" id="detail-status">TODO</span>
+            </header>
+
+            <h1 id="detail-title">Đang tải nhiệm vụ...</h1>
+
+            <div class="detail-badges">
+                <span id="detail-priority">MEDIUM</span>
+                <span id="detail-group"></span>
+            </div>
+
+            <div class="divider"></div>
+
+            <h3>Thông tin nhiệm vụ</h3>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span>Người giao</span>
+                    <strong id="detail-creator">Chưa có thông tin</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Người thực hiện</span>
+                    <strong id="detail-assignee">Chưa giao</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Hạn hoàn thành</span>
+                    <strong id="detail-due-date">Chưa đặt deadline</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Ngày tạo</span>
+                    <strong id="detail-created-date">Chưa có thông tin</strong>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h3>Mô tả nhiệm vụ</h3>
+            <p class="description" id="detail-description">
+                Chưa có mô tả.
+            </p>
+
+            <div class="divider"></div>
+
+            <div class="checklist-heading">
+                <h3>Checklist</h3>
+                <span id="checklist-count">0/3</span>
+            </div>
+
+            <div id="detail-checklist">
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span>Hoàn thành công việc chính</span>
+                </label>
+
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span>Kiểm tra kết quả</span>
+                </label>
+
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span>Hoàn tất nhiệm vụ</span>
+                </label>
+            </div>
+
+            <div id="leader-confirm-area" hidden>
+                <button type="button" id="confirm-task-btn">
+                    Xác nhận hoàn thành
+                </button>
+            </div>
+
+            <p id="checklist-message" hidden></p>
+            <p class="error-message" id="detail-error" hidden></p>
+        </section>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/task-detail.js"></script>
+<script src="js/sidebar.js"></script>
+</body>
+</html>

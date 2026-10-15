@@ -40,7 +40,6 @@ let columns = {
 
 let groups = [];
 let projects = [];
-let draggingTask = null;
 const board = document.getElementById("kanban-board");
 const statsRow = document.getElementById("stats-row");
 const totalTasksElement = document.getElementById("total-tasks");
@@ -153,7 +152,6 @@ const dueDateHtml = task.dueDate
     return `
         <article
             class="task-card"
-            draggable="true"
             data-task-id="${escapeHtml(task.id)}"
             data-column="${escapeHtml(column)}"
             style="--task-color:${escapeHtml(task.color)}"
@@ -252,68 +250,13 @@ function renderBoard() {
 
     attachBoardEvents();
 }
-
 function attachBoardEvents() {
     document.querySelectorAll(".task-card").forEach(card => {
-        card.addEventListener("dragstart", event => {
-            const taskId = Number(card.dataset.taskId);
-            const from = card.dataset.column;
+        card.addEventListener("click", () => {
+            const taskId = card.dataset.taskId;
 
-            const task = columns[from].find(item => item.id === taskId);
-
-            if (!task) {
-                event.preventDefault();
-                return;
-            }
-
-            draggingTask = { task, from };
-
-            card.classList.add("dragging");
-
-            if (event.dataTransfer) {
-                event.dataTransfer.effectAllowed = "move";
-                event.dataTransfer.setData("text/plain", String(taskId));
-            }
-        });
-
-        card.addEventListener("dragend", () => {
-            draggingTask = null;
-
-            document.querySelectorAll(".task-card").forEach(item => {
-                item.classList.remove("dragging");
-            });
-
-            document.querySelectorAll(".kanban-column").forEach(item => {
-                item.classList.remove("drag-over");
-            });
-        });
-    });
-
-    document.querySelectorAll(".kanban-column").forEach(column => {
-        column.addEventListener("dragover", event => {
-            event.preventDefault();
-            column.classList.add("drag-over");
-
-            if (event.dataTransfer) {
-                event.dataTransfer.dropEffect = "move";
-            }
-        });
-
-        column.addEventListener("dragleave", event => {
-            if (!column.contains(event.relatedTarget)) {
-                column.classList.remove("drag-over");
-            }
-        });
-
-        column.addEventListener("drop", event => {
-            event.preventDefault();
-
-            const destination = column.dataset.dropColumn;
-            column.classList.remove("drag-over");
-
-            if (destination) {
-                handleDrop(destination);
-            }
+            window.location.href =
+                `task-detail.html?id=${encodeURIComponent(taskId)}`;
         });
     });
 
@@ -545,8 +488,18 @@ async function loadTasks() {
             throw new Error("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.");
         }
 
-        const myTasks = taskItems
+        const myTasks = taskItems.filter(task => {
+            const isAssignee =
+                String(task.assigneeId) === String(user.id);
 
+            const isCreator =
+                String(task.reporterId) === String(user.id);
+
+            const isUnassigned =
+                task.assigneeId == null;
+
+            return isAssignee || (isCreator && isUnassigned);
+        });
         columns = {
             Todo: [],
             "In Progress": [],

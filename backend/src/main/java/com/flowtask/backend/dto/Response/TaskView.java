@@ -22,5 +22,10 @@ public record TaskView(
         List<String> tags,
         LocalDate dueDate,
         int position,
-        String color
+        String color,
+        Long reporterId,
+        String reporterName,
+        boolean mainTaskDone,
+        boolean resultChecked,
+        boolean taskFinished
 ) {}

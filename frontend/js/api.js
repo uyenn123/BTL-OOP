@@ -58,15 +58,45 @@ const api = {
             body: JSON.stringify(body)
         });
     },
+
     patch(path, body) {
         return apiRequest(path, {
             method: "PATCH",
             body: JSON.stringify(body)
         });
     },
+
     delete(path) {
-        return apiRequest(path, {
-            method: "DELETE"
+        return apiRequest(path, { method: "DELETE" });
+    },
+
+    getNotifications() {
+        return apiRequest("/api/notifications");
+    },
+
+    getUnreadNotificationCount() {
+        return apiRequest("/api/notifications/unread-count");
+    },
+
+    getProjectNotifications(projectId) {
+        return apiRequest(`/api/notifications/project/${projectId}`);
+    },
+
+    getProjectUnreadNotificationCount(projectId) {
+        return apiRequest(`/api/notifications/project/${projectId}/unread-count`);
+    },
+
+    markNotificationAsRead(id) {
+        return apiRequest(`/api/notifications/${id}/read`, {
+            method: "PATCH"
+        });
+    },
+
+    markAllNotificationsAsRead() {
+        return apiRequest("/api/notifications/read-all", {
+            method: "PATCH"
         });
     }
 };
+
+window.api = api;

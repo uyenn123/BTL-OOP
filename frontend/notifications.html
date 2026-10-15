@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | FlowTask</title>
+
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/notification.css">
+</head>
+<body>
+<div class="app-layout">
+    <div id="sidebar-container"></div>
+
+    <main class="notifications-page">
+        <header class="page-header">
+            <div>
+                <p class="page-subtitle">STAY UPDATED</p>
+                <h1>Notifications</h1>
+                <p class="page-description">
+                    Theo dõi các cập nhật và công việc mới nhất của bạn.
+                </p>
+            </div>
+
+            <button id="mark-all-read" class="mark-all-btn">
+                Đánh dấu tất cả đã đọc
+            </button>
+        </header>
+
+        <section class="notification-summary">
+            <div>
+                <span>Tất cả thông báo</span>
+                <strong id="total-count">0</strong>
+            </div>
+            <div>
+                <span>Chưa đọc</span>
+                <strong id="unread-total">0</strong>
+            </div>
+            <div>
+                <span>Đã đọc</span>
+                <strong id="read-total">0</strong>
+            </div>
+        </section>
+
+        <section class="notification-content">
+            <div class="notification-page-header">
+                <h2>Danh sách thông báo</h2>
+
+                <select id="notification-filter">
+                    <option value="all">Tất cả</option>
+                    <option value="unread">Chưa đọc</option>
+                    <option value="read">Đã đọc</option>
+                </select>
+            </div>
+
+            <div id="page-notification-list">
+                <p class="page-loading">Đang tải thông báo...</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/notification.js"></script>
+</body>
+</html>

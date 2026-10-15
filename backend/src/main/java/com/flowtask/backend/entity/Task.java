@@ -46,4 +46,12 @@ public class Task extends BaseEntity {
 
     @Column(nullable = false)
     private int position;
+    @Column(nullable = false)
+    private boolean mainTaskDone = false;
+
+    @Column(nullable = false)
+    private boolean resultChecked = false;
+
+    @Column(nullable = false)
+    private boolean taskFinished = false;
 }

@@ -18,3 +18,25 @@
     min-width: 0;
     background: #0b0d16;
 }
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    min-height: 100%;
+    background: #0b0d17;
+}
+
+.app-layout {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    min-height: 100vh;
+    background: #0b0d17;
+}
+
+.dashboard-page {
+    margin: 0;
+    min-width: 0;
+    background: #0b0d17;
+}

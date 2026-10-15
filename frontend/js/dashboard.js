@@ -32,7 +32,9 @@ async function loadDashboard() {
         allGroups = Array.isArray(groups) ? groups : [];
         allProjects = Array.isArray(projects) ? projects : [];
         allTasks = Array.isArray(tasks) ? tasks : [];
-
+        console.log("USER:", JSON.parse(localStorage.getItem("flowtask_user") || "{}"));
+        console.log("TASKS:", allTasks);
+        console.log("TASK ĐẦU TIÊN:", allTasks[0]);
         renderStats();
         renderTasks();
         renderProjects();
@@ -118,20 +120,22 @@ function renderTasks() {
 
     if (!body) return;
 
+    const rawUser = localStorage.getItem("flowtask_user");
+    let user = {};
+
+    try {
+        user = JSON.parse(rawUser || "{}");
+    } catch (error) {
+        console.error("Không thể đọc người dùng:", error);
+    }
+
+    const userId = user.id;
+
     let tasks = allTasks.filter(task =>
         String(task.status || "").toUpperCase() !== "DONE"
     );
 
     if (currentTab === "mine") {
-        const rawUser = localStorage.getItem("flowtask_user");
-        let userId = null;
-
-        try {
-            userId = JSON.parse(rawUser || "{}").id;
-        } catch (error) {
-            console.error(error);
-        }
-
         if (userId == null) {
             renderEmptyTasks("Cannot identify the current user.");
             return;
@@ -140,6 +144,18 @@ function renderTasks() {
         tasks = tasks.filter(task =>
             task.assigneeId != null &&
             String(task.assigneeId) === String(userId)
+        );
+    }
+
+    if (currentTab === "assigned") {
+        if (userId == null) {
+            renderEmptyTasks("Cannot identify the current user.");
+            return;
+        }
+
+        tasks = tasks.filter(task =>
+            task.reporterId != null &&
+            String(task.reporterId) === String(userId)
         );
     }
 
@@ -152,35 +168,110 @@ function renderTasks() {
     });
 
     if (tasks.length === 0) {
-        renderEmptyTasks(
-            currentTab === "mine"
-                ? "No unfinished tasks assigned to you."
-                : "No unfinished tasks."
-        );
+        let message = "No unfinished tasks.";
+
+        if (currentTab === "mine") {
+            message = "No unfinished tasks assigned to you.";
+        } else if (currentTab === "assigned") {
+            message = "No unfinished tasks assigned by you.";
+        }
+
+        renderEmptyTasks(message);
         return;
     }
 
-    body.innerHTML = tasks.slice(0, 8).map(task => {
-        const overdue = isOverdue(task);
+    body.innerHTML = tasks.slice(0, 8).map(task => `
+        <tr class="dashboard-task-row"
+            data-task-id="${escapeHtml(task.id)}"
+            tabindex="0"
+            role="link"
+            aria-label="Xem chi tiết ${escapeHtml(task.title || "Untitled task")}">
+            <td>${escapeHtml(task.title || "Untitled task")}</td>
+            <td>${escapeHtml(task.groupName || "—")}</td>
+            <td>${escapeHtml(task.projectName || "—")}</td>
+            <td>${escapeHtml(formatEnum(task.priority))}</td>
+            <td>${escapeHtml(formatEnum(task.status))}</td>
+            <td class="${isOverdue(task) ? "overdue-date" : ""}">
+                ${isOverdue(task) ? "⚠ " : ""}
+                ${escapeHtml(formatDate(task.dueDate))}
+            </td>
+            <td>
+                ${String(task.reporterId) === String(userId)
+                    ? `<button
+                           class="delete-task-btn"
+                           data-task-id="${escapeHtml(task.id)}"
+                           title="Xóa công việc"
+                           aria-label="Xóa công việc">
+                           <svg width="16" height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                               <path d="M3 6h18"/>
+                               <path d="M8 6V4h8v2"/>
+                               <path d="M19 6l-1 14H6L5 6"/>
+                               <path d="M10 11v5"/>
+                               <path d="M14 11v5"/>
+                           </svg>
+                       </button>`
+                    : "—"}
+            </td>
+        </tr>
+    `).join("");
+    body.querySelectorAll(".dashboard-task-row").forEach(row => {
+        function openTaskDetail() {
+            const taskId = row.dataset.taskId;
 
-        return `
-            <tr>
-                <td>${escapeHtml(task.title || "Untitled task")}</td>
-                <td>${escapeHtml(task.groupName || "—")}</td>
-                <td>${escapeHtml(task.projectName || "—")}</td>
-                <td>${escapeHtml(formatEnum(task.priority))}</td>
-                <td>${escapeHtml(formatEnum(task.status))}</td>
-                <td class="${overdue ? "overdue-date" : ""}">
-                    ${overdue ? "⚠ " : ""}
-                    ${escapeHtml(formatDate(task.dueDate))}
-                    ${overdue ? " (Overdue)" : ""}
-                </td>
-            </tr>
-        `;
-    }).join("");
+            if (taskId) {
+                window.location.href =
+                    `task-detail.html?id=${encodeURIComponent(taskId)}`;
+            }
+        }
+
+        row.addEventListener("click", function (event) {
+            // Không chuyển trang khi bấm nút xóa.
+            if (event.target.closest(".delete-task-btn")) {
+                return;
+            }
+
+            openTaskDetail();
+        });
+
+        row.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                openTaskDetail();
+            }
+        });
+    });
+    body.querySelectorAll(".delete-task-btn").forEach(button => {
+        button.addEventListener("click", async () => {
+            const taskId = button.dataset.taskId;
+
+            if (!confirm("Bà có chắc muốn xóa task này không?")) {
+                return;
+            }
+
+            button.disabled = true;
+
+            try {
+                await api.delete(
+                    `/api/tasks/${encodeURIComponent(taskId)}`
+                );
+
+                alert("Đã xóa task!");
+                await loadDashboard();
+            } catch (error) {
+                console.error("Lỗi xóa task:", error);
+                alert("Không thể xóa task: " + error.message);
+            } finally {
+                button.disabled = false;
+            }
+        });
+    });
 }
-
-
 function renderProjects() {
     const container = document.getElementById("quick-projects");
 
@@ -197,24 +288,56 @@ function renderProjects() {
             : 0;
 
         return `
-            <article class="quick-project-card">
+            <article class="quick-project-card"
+                     data-project-id="${escapeHtml(project.id)}"
+                     tabindex="0"
+                     role="link"
+                     aria-label="Xem chi tiết ${escapeHtml(project.name || "Untitled project")}">
+
                 <h3>${escapeHtml(project.name || "Untitled project")}</h3>
+
+                <p class="project-group">
+                    <span class="group-icon">◈</span>
+                    ${escapeHtml(project.groupName || project.group?.name || "Chưa có nhóm")}
+                </p>
+
                 <p>${escapeHtml(project.description || "")}</p>
                 <div class="project-progress">
                     <div class="progress-track">
                         <div class="progress-fill"
                              style="width: ${progress}%"></div>
                     </div>
+
                     <small>
                         ${progress}% · ${project.doneCount}/${project.taskCount} tasks
                     </small>
                 </div>
+
                 <span>${escapeHtml(formatEnum(project.status))}</span>
             </article>
         `;
     }).join("");
-}
 
+    container.querySelectorAll(".quick-project-card").forEach(card => {
+        function openProjectDetail() {
+            const projectId = card.dataset.projectId;
+
+            if (projectId) {
+                window.location.href =
+                    `project-detail.html?id=${encodeURIComponent(projectId)}`;
+            }
+        }
+
+        card.addEventListener("click", openProjectDetail);
+
+        card.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                openProjectDetail();
+            }
+        });
+    });
+}
 function renderActivity() {
     const container = document.getElementById("activity-list");
 
@@ -294,14 +417,13 @@ function setText(id, value) {
 function showError(message) {
     setText("dashboard-error", message);
 }
-
 function renderEmptyTasks(message) {
     const body = document.getElementById("task-table-body");
 
     if (body) {
         body.innerHTML = `
             <tr>
-                <td colspan="5" class="empty-message">
+                <td colspan="6" class="empty-message">
                     ${escapeHtml(message)}
                 </td>
             </tr>

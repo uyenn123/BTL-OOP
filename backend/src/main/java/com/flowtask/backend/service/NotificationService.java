@@ -4,6 +4,7 @@ import com.flowtask.backend.dto.Response.NotificationView;
 import com.flowtask.backend.entity.Notification;
 import com.flowtask.backend.entity.User;
 import com.flowtask.backend.repository.NotificationRepository;
+import com.flowtask.backend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notifications;
-
+    private final ProjectRepository projects;
     @Transactional(readOnly = true)
     public List<NotificationView> getAll(User user) {
         return notifications
@@ -44,7 +45,54 @@ public class NotificationService {
                 notification.getId(),
                 notification.getMessage(),
                 notification.isRead(),
-                notification.getCreatedAt()
+                notification.getCreatedAt(),
+                notification.getProject() == null
+                        ? null : notification.getProject().getId(),
+                notification.getTaskId(),
+                notification.getType()
         );
+    }
+    @Transactional(readOnly = true)
+    public long getUnreadCount(User user) {
+        return notifications.countByRecipientIdAndReadFalse(user.getId());
+    }
+
+    @Transactional
+    public void readAll(User user) {
+        List<Notification> list =
+                notifications.findByRecipientIdAndReadFalse(user.getId());
+
+        list.forEach(n -> n.setRead(true));
+    }
+    @Transactional(readOnly = true)
+    public List<NotificationView> getByProject(User user, Long projectId) {
+        checkProjectAccess(user, projectId);
+
+        return notifications
+                .findTop20ByRecipientIdAndProjectIdOrderByCreatedAtDesc(
+                        user.getId(), projectId)
+                .stream()
+                .map(this::toView)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public long getProjectUnreadCount(User user, Long projectId) {
+        checkProjectAccess(user, projectId);
+
+        return notifications.countByRecipientIdAndProjectIdAndReadFalse(
+                user.getId(), projectId);
+    }
+
+    private void checkProjectAccess(User user, Long projectId) {
+        if (user == null || user.getId() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+
+        if (!projects.existsByIdAndWorkspaceOwnerId(projectId, user.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Project not found");
+        }
     }
 }
