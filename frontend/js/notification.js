@@ -138,5 +138,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    loadNotifications();
+    const notificationPolling = setInterval(() => {
+        if (!document.hidden) {
+            loadNotifications();
+        }
+    }, 10000);
 });

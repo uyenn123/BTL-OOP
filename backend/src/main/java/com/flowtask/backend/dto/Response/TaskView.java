@@ -4,7 +4,7 @@ import com.flowtask.backend.entity.TaskStatus;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.time.Instant;
 public record TaskView(
         Long id,
         String title,
@@ -27,5 +27,6 @@ public record TaskView(
         String reporterName,
         boolean mainTaskDone,
         boolean resultChecked,
-        boolean taskFinished
+        boolean taskFinished,
+        Instant createdAt
 ) {}

@@ -86,9 +86,12 @@ async function loadTaskDetail() {
             "Chưa có mô tả cho nhiệm vụ này."
         );
 
-        setText("detail-creator", null);
-        setText("detail-created-date", null);
-
+        setText("detail-creator", task.reporterName, "Chưa có thông tin");
+        setText(
+            "detail-created-date",
+            task.createdAt ? formatDate(task.createdAt) : null,
+            "Chưa có thông tin"
+        );
         const priorityColors = {
             URGENT: "#F87171",
             HIGH: "#FBBF24",

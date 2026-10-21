@@ -18,7 +18,9 @@ import com.flowtask.backend.dto.Response.ProjectMemberView;
 import com.flowtask.backend.repository.GroupMemberRepository;
 import java.util.List;
 import java.util.Objects;
-
+import com.flowtask.backend.entity.Notification;
+import com.flowtask.backend.entity.NotificationType;
+import com.flowtask.backend.repository.NotificationRepository;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -28,7 +30,7 @@ public class ProjectService {
     private final WorkspaceRepository workspaces;
     private final TaskRepository tasks;
     private final GroupMemberRepository groupMembers;
-
+    private final NotificationRepository notifications;
     @Transactional(readOnly = true)
     public List<ProjectView> getAll(User user) {
         checkUser(user);
@@ -51,24 +53,77 @@ public class ProjectService {
         return view(accessible(id, user));
     }
 
+
+
     @Transactional
     public ProjectView create(User user, ProjectRequest request) {
         checkUser(user);
 
-        Project project = new Project();
+        var group = groups.findById(request.groupId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Nhóm không hợp lệ"
+                ));
 
-        project.setWorkspace(
-                workspaces.findFirstByOwnerId(user.getId())
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Workspace not found"
-                        ))
+        boolean isLeader =
+                groupMembers.existsByGroupIdAndUserIdAndRoleIgnoreCase(
+                        group.getId(),
+                        user.getId(),
+                        "Team Lead"
+                );
+
+        if (!isLeader) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Chỉ Leader mới được thêm dự án!"
+            );
+        }
+
+        Project project = new Project();
+        project.setGroup(group);
+        project.setWorkspace(group.getWorkspace());
+        project.setName(request.name());
+        project.setDescription(request.description());
+        project.setStatus(request.status());
+        project.setPriority(request.priority());
+        project.setDeadline(request.deadline());
+        project.setColor(
+                request.color() == null || request.color().isBlank()
+                        ? "#6366F1"
+                        : request.color()
         );
 
-        apply(project, request, user);
+        Project savedProject = projects.save(project);
 
-        return view(projects.save(project));
+        var members = groupMembers.findByGroupId(group.getId());
+
+        for (var member : members) {
+            if (member.getUser() == null
+                    || member.getUser().getId() == null
+                    || member.getUser().getId().equals(user.getId())) {
+                continue;
+            }
+
+            Notification notification = new Notification();
+            notification.setRecipient(member.getUser());
+            notification.setProject(savedProject);
+            notification.setMessage(
+                    "Leader vừa tạo dự án \""
+                            + savedProject.getName()
+                            + "\" trong nhóm \""
+                            + group.getName()
+                            + "\"."
+            );
+            notification.setRead(false);
+            notification.setType(NotificationType.PROJECT_CREATED);
+
+            notifications.save(notification);
+        }
+
+        return view(savedProject);
     }
+
+
     @Transactional
     public ProjectView update(
             Long id,

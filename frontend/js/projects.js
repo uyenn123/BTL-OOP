@@ -316,6 +316,7 @@ function closeModal() {
     setModalError("");
 }
 
+
 async function createProject(event) {
     event.preventDefault();
     setModalError("");
@@ -357,7 +358,6 @@ async function createProject(event) {
         ];
 
         form.reset();
-
         document.getElementById("form-priority").value = "MEDIUM";
 
         if (groups.length > 0) {
@@ -367,17 +367,26 @@ async function createProject(event) {
         closeModal();
         setError("");
         renderProjects();
+
     } catch (error) {
-        setModalError(
-            error instanceof Error
-                ? error.message
-                : "Unable to create project"
-        );
+        let message = error instanceof Error
+            ? error.message
+            : "Unable to create project";
+
+        try {
+            const parsed = JSON.parse(message);
+            message = parsed.message || message;
+        } catch (e) {
+        }
+
+        setModalError(message);
+
     } finally {
         createButton.disabled = false;
         createButton.textContent = "Create Project";
     }
 }
+
 
 document.querySelectorAll(".view-btn").forEach(button => {
     button.addEventListener("click", () => {

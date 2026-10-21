@@ -4,16 +4,12 @@ import com.flowtask.backend.dto.Request.StatusRequest;
 import com.flowtask.backend.dto.Request.TaskRequest;
 import com.flowtask.backend.dto.Response.TaskView;
 import com.flowtask.backend.entity.*;
-import com.flowtask.backend.repository.NotificationRepository;
-import com.flowtask.backend.repository.ProjectRepository;
-import com.flowtask.backend.repository.TaskRepository;
-import com.flowtask.backend.repository.UserRepository;
+import com.flowtask.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.flowtask.backend.repository.ProjectActivityRepository;
 import com.flowtask.backend.dto.Request.ChecklistRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +23,7 @@ public class TaskService {
     private final UserRepository users;
     private final NotificationRepository notifications;
     private final ProjectActivityRepository activities;
+    private final GroupMemberRepository groupMembers;
     @Transactional(readOnly = true)
     public List<TaskView> all(User user) {
         return tasks
@@ -41,7 +38,22 @@ public class TaskService {
     }
     @Transactional(readOnly = true)
     public TaskView getById(Long id, User user) {
-        return view(accessible(id, user));
+        var task = tasks.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Task not found"));
+
+        boolean isAssignee = task.getAssignee() != null
+                && task.getAssignee().getId().equals(user.getId());
+
+        boolean isReporter = task.getReporter() != null
+                && task.getReporter().getId().equals(user.getId());
+
+        if (!isLeader(task, user) && !isAssignee && !isReporter) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Task not found");
+        }
+
+        return view(task);
     }
     @Transactional
     public TaskView create(TaskRequest request, User user) {
@@ -73,6 +85,7 @@ public class TaskService {
 
         return view(saved);
     }
+
     @Transactional
     public TaskView update(Long id, TaskRequest request, User user) {
         var task = accessible(id, user);
@@ -104,10 +117,25 @@ public class TaskService {
             }
         }
 
+        Long oldAssigneeId = task.getAssignee() == null
+                ? null : task.getAssignee().getId();
+
         apply(task, request, user);
 
-        return view(tasks.save(task));
+        var saved = tasks.save(task);
+
+        Long newAssigneeId = saved.getAssignee() == null
+                ? null : saved.getAssignee().getId();
+
+        if (newAssigneeId != null
+                && !newAssigneeId.equals(user.getId())
+                && !newAssigneeId.equals(oldAssigneeId)) {
+            notifyAssignee(saved, user);
+        }
+
+        return view(saved);
     }
+
 
     @Transactional
     public TaskView updateStatus(
@@ -141,6 +169,36 @@ public class TaskService {
                     user.fullName() + " đã hoàn thành task \""
                             + saved.getTitle() + "\""
             );
+            if (oldStatus != TaskStatus.DONE
+                    && saved.getStatus() == TaskStatus.DONE
+                    && saved.getAssignee() != null
+                    && !saved.getAssignee().getId().equals(user.getId())) {
+
+                Notification notification = new Notification();
+                notification.setRecipient(saved.getAssignee());
+                notification.setProject(saved.getProject());
+                notification.setTaskId(saved.getId());
+                notification.setMessage(
+                        "Leader " + user.fullName()
+                                + " đã xác nhận hoàn thành nhiệm vụ \""
+                                + saved.getTitle() + "\"."
+                );
+                notification.setRead(false);
+                notification.setType(NotificationType.TASK_COMPLETED);
+
+                notifications.save(notification);
+            }
+        }
+
+        if (oldStatus != TaskStatus.IN_PROGRESS
+                && saved.getStatus() == TaskStatus.IN_PROGRESS) {
+            notifyReporter(
+                    saved,
+                    user,
+                    NotificationType.TASK_STARTED,
+                    user.fullName() + " đã bắt đầu thực hiện nhiệm vụ \""
+                            + saved.getTitle() + "\"."
+            );
         }
 
         return view(saved);
@@ -167,11 +225,35 @@ public class TaskService {
 
         var task = accessible(id, user);
 
+        boolean wasCompleted = task.isMainTaskDone()
+                && task.isResultChecked()
+                && task.isTaskFinished();
+
         task.setMainTaskDone(request.mainTaskDone());
         task.setResultChecked(request.resultChecked());
         task.setTaskFinished(request.taskFinished());
 
-        return view(tasks.save(task));
+        var saved = tasks.save(task);
+
+        boolean isCompleted = saved.isMainTaskDone()
+                && saved.isResultChecked()
+                && saved.isTaskFinished();
+
+
+        if (!wasCompleted && isCompleted) {
+            notifyLeaders(
+                    saved,
+                    user,
+                    NotificationType.TASK_COMPLETION_REQUEST,
+                    user.fullName()
+                            + " đã hoàn thành checklist của nhiệm vụ \""
+                            + saved.getTitle()
+                            + "\" và đang chờ Leader xác nhận."
+            );
+        }
+
+
+        return view(saved);
     }
     private void apply(Task task, TaskRequest request, User user) {
         var project = projects.findById(request.projectId())
@@ -272,10 +354,10 @@ public class TaskService {
                 task.getPosition(),
                 project.getColor(),
                 task.getReporter() == null ? null : task.getReporter().getId(), task.getReporter() == null ? null : task.getReporter().fullName(),
-              //  task.getReporter() == null ? null : task.getReporter().fullName(),
                 task.isMainTaskDone(),
                 task.isResultChecked(),
-                task.isTaskFinished()
+                task.isTaskFinished(),
+                task.getCreatedAt()
         );
     }
     private void recordActivity(
@@ -293,10 +375,37 @@ public class TaskService {
 
         activities.save(activity);
     }
+
+
     private boolean isLeader(Task task, User user) {
-        return task.getProject().getWorkspace()
-                .getOwner().getId().equals(user.getId());
+        var project = task.getProject();
+
+        if (project == null) {
+            return false;
+        }
+
+        // Chủ workspace được xem là Leader
+        if (project.getWorkspace() != null
+                && project.getWorkspace().getOwner() != null
+                && project.getWorkspace().getOwner().getId()
+                .equals(user.getId())) {
+            return true;
+        }
+
+        // Giữ nguyên kiểm tra Leader trong nhóm
+        var group = project.getGroup();
+
+        if (group == null) {
+            return false;
+        }
+
+        return groupMembers.existsByGroupIdAndUserIdAndRoleIgnoreCase(
+                group.getId(),
+                user.getId(),
+                "Team Lead"
+        );
     }
+
 
     private Task accessible(Long id, User user) {
         return tasks.findById(id)
@@ -312,4 +421,62 @@ public class TaskService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Task not found"));
     }
+    private void notifyReporter(
+            Task task,
+            User actor,
+            NotificationType type,
+            String message) {
+
+        User reporter = task.getReporter();
+
+        if (reporter == null
+                || reporter.getId().equals(actor.getId())) {
+            return;
+        }
+
+        Notification notification = new Notification();
+        notification.setRecipient(reporter);
+        notification.setMessage(message);
+        notification.setProject(task.getProject());
+        notification.setTaskId(task.getId());
+        notification.setType(type);
+
+        notifications.save(notification);
+    }
+
+    private void notifyLeaders(
+            Task task,
+            User actor,
+            NotificationType type,
+            String message) {
+
+        var group = task.getProject().getGroup();
+
+        if (group == null) {
+            return;
+        }
+
+        var leaders = groupMembers.findByGroupIdAndRoleIgnoreCase(
+                group.getId(),
+                "Team Lead"
+        );
+
+        for (var member : leaders) {
+            User leader = member.getUser();
+
+            if (leader.getId().equals(actor.getId())) {
+                continue;
+            }
+
+            Notification notification = new Notification();
+            notification.setRecipient(leader);
+            notification.setMessage(message);
+            notification.setProject(task.getProject());
+            notification.setTaskId(task.getId());
+            notification.setType(type);
+
+            notifications.save(notification);
+        }
+    }
+
 }

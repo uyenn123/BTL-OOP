@@ -342,90 +342,121 @@ async function apiRequestStatus(taskId, status) {
 
     return response.json();
 }
- async function renderTeam() {
-     const teamList = $("team-list");
-     const avatars = $("member-avatars");
 
-     if (!teamList) return;
+async function renderTeam() {
+    const teamList = $("team-list");
+    const membersList = $("project-members-list");
+    const avatars = $("member-avatars");
 
-     teamList.innerHTML = `
-         <p class="team-loading">Đang tải thành viên...</p>
-     `;
+    if (!teamList && !membersList) return;
 
-     if (avatars) avatars.innerHTML = "";
+    if (teamList) {
+        teamList.innerHTML = "<p>Đang tải thành viên...</p>";
+    }
 
-     try {
-         const members = await api.get(
-             `/api/projects/${encodeURIComponent(projectId)}/members`
-         );
+    if (membersList) {
+        membersList.innerHTML = "<p>Đang tải thành viên...</p>";
+    }
 
-         if (!Array.isArray(members)) {
-             throw new Error("Dữ liệu thành viên không hợp lệ.");
-         }
+    if (avatars) avatars.innerHTML = "";
 
-         if (members.length === 0) {
-             teamList.innerHTML = `
-                 <div class="team-empty">
-                     <p>Chưa có thành viên trong dự án.</p>
-                 </div>
-             `;
-             return;
-         }
+    try {
+        const members = await api.get(
+            `/api/projects/${encodeURIComponent(projectId)}/members`
+        );
 
-         const avatarColors = [
-             "#6366f1",
-             "#0891b2",
-             "#059669",
-             "#d97706",
-             "#db2777"
-         ];
+        if (!Array.isArray(members)) {
+            throw new Error("Dữ liệu thành viên không hợp lệ.");
+        }
 
-         teamList.innerHTML = members.map((member, index) => {
-             const name = member.name || "Thành viên";
-             const initials = member.initials ||
-                 name.split(/\s+/).map(word => word[0]).slice(-2).join("").toUpperCase();
+        if (members.length === 0) {
+            const emptyHtml = `
+                <p class="empty-text">
+                    Nhóm của dự án hiện chưa có thành viên.
+                </p>
+            `;
 
-             return `
-                 <div class="team-member">
-                     <div class="team-avatar"
-                          style="background:${avatarColors[index % avatarColors.length]}22;
-                                 color:${avatarColors[index % avatarColors.length]}">
-                         ${escapeHtml(initials)}
-                     </div>
+            if (teamList) teamList.innerHTML = emptyHtml;
+            if (membersList) membersList.innerHTML = emptyHtml;
+            return;
+        }
 
-                     <div class="team-info">
-                         <div class="team-name">
-                             ${escapeHtml(name)}
-                         </div>
-                         <div class="team-role">
-                             ${escapeHtml(member.email || "")}
-                         </div>
-                     </div>
-                 </div>
-             `;
-         }).join("");
+        const avatarColors = [
+            "#6366f1",
+            "#0891b2",
+            "#059669",
+            "#d97706",
+            "#db2777"
+        ];
 
-         if (avatars) {
-             avatars.innerHTML = members.slice(0, 5).map((member, index) => `
-                 <div class="member-avatar"
-                      title="${escapeHtml(member.name || "")}"
-                      style="background:${avatarColors[index % avatarColors.length]}22;
-                             color:${avatarColors[index % avatarColors.length]}">
-                     ${escapeHtml(member.initials || "?")}
-                 </div>
-             `).join("");
-         }
+        const memberHtml = members.map((member, index) => {
+            const name = member.name || "Thành viên";
+            const initials = member.initials ||
+                name.split(/\s+/)
+                    .map(word => word[0])
+                    .slice(-2)
+                    .join("")
+                    .toUpperCase();
 
-     } catch (error) {
-         console.error("Không thể tải thành viên dự án:", error);
+            const color = avatarColors[index % avatarColors.length];
 
-         teamList.innerHTML = `
-             <p class="team-error">
-                 Không thể tải thành viên. ${escapeHtml(error.message)}
-             </p>
-         `;
-     }
- }
+            return `
+                <div class="team-member">
+                    <div class="team-avatar"
+                         style="background:${color}22;color:${color}">
+                        ${escapeHtml(initials)}
+                    </div>
+
+                    <div class="team-info">
+                        <div class="team-name">
+                            ${escapeHtml(name)}
+                        </div>
+                        <div class="team-role">
+                            ${escapeHtml(member.email || "")}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        if (teamList) teamList.innerHTML = memberHtml;
+        if (membersList) membersList.innerHTML = memberHtml;
+
+        if (avatars) {
+            avatars.innerHTML = members.slice(0, 5).map((member, index) => {
+                const color = avatarColors[index % avatarColors.length];
+                const name = member.name || "Thành viên";
+                const initials = member.initials ||
+                    name.split(/\s+/)
+                        .map(word => word[0])
+                        .slice(-2)
+                        .join("")
+                        .toUpperCase();
+
+                return `
+                    <div class="member-avatar"
+                         title="${escapeHtml(name)}"
+                         style="background:${color}22;color:${color}">
+                        ${escapeHtml(initials)}
+                    </div>
+                `;
+            }).join("");
+        }
+    } catch (error) {
+        console.error("Không thể tải thành viên dự án:", error);
+
+        const errorHtml = `
+            <p class="team-error">
+                Không thể tải thành viên.
+                ${escapeHtml(error.message)}
+            </p>
+        `;
+
+        if (teamList) teamList.innerHTML = errorHtml;
+        if (membersList) membersList.innerHTML = errorHtml;
+    }
+}
+
 function setupTabs() {
     const tabs = document.querySelectorAll(".project-tab");
 

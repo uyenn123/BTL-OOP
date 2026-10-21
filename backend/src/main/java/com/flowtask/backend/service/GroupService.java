@@ -24,6 +24,7 @@ public class GroupService {
     private final TaskRepository tasks;
     private final WorkspaceRepository workspaces;
     private final UserRepository users;
+    private final NotificationRepository notifications;
     @Transactional(readOnly = true)
     public List<GroupView> getAll(User user) {
         List<TeamGroup> groupList = new ArrayList<>(
@@ -31,6 +32,7 @@ public class GroupService {
         );
 
         List<GroupMember> memberList = members.findByUserId(user.getId());
+
         System.out.println("USER ID = " + user.getId());
         System.out.println("USER EMAIL = " + user.getEmail());
         System.out.println("MEMBER COUNT = " + memberList.size());
@@ -38,6 +40,7 @@ public class GroupService {
         for (GroupMember member : memberList) {
             System.out.println("GROUP ID = " + member.getGroup().getId());
         }
+
         for (GroupMember member : memberList) {
             TeamGroup group = member.getGroup();
 
@@ -218,12 +221,23 @@ public class GroupService {
             );
         }
 
+
         GroupMember member = new GroupMember();
         member.setGroup(group);
         member.setUser(newUser);
         member.setRole("Member");
 
         members.save(member);
+
+        Notification notification = new Notification();
+        notification.setRecipient(newUser);
+        notification.setMessage(
+                "Bạn vừa được thêm vào nhóm " + group.getName() + "."
+        );
+        notification.setType(NotificationType.GROUP_MEMBER_ADDED);
+
+        notifications.save(notification);
+
     }
 
 

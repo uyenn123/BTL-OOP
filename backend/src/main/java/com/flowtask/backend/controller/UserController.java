@@ -1,5 +1,6 @@
 package com.flowtask.backend.controller;
 
+import com.flowtask.backend.dto.Request.ChangePasswordRequest;
 import com.flowtask.backend.dto.Request.UpdateProfile;
 import com.flowtask.backend.dto.Response.UserView;
 import com.flowtask.backend.entity.User;
@@ -17,7 +18,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public UserView me(@AuthenticationPrincipal User user) {
+    public UserView me(
+            @AuthenticationPrincipal User user
+    ) {
         return userService.getMe(user);
     }
 
@@ -27,5 +30,13 @@ public class UserController {
             @Valid @RequestBody UpdateProfile request
     ) {
         return userService.update(user, request);
+    }
+
+    @PutMapping("/me/password")
+    public void changePassword(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePassword(user, request);
     }
 }
